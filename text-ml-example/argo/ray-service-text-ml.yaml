@@ -1,0 +1,138 @@
+apiVersion: ray.io/v1alpha1
+kind: RayService
+metadata:
+  name: ray-service-text-ml
+spec:
+  serviceUnhealthySecondThreshold: 900
+  deploymentUnhealthySecondThreshold: 300
+  serveConfigV2: |
+    applications:
+      - name: text_ml_app
+        import_path: text_ml:app
+        route_prefix: /summarize_translate
+        runtime_env:
+          working_dir: "https://github.com/konsti/ray-experiments/archive/refs/heads/master.zip"
+          pip:
+            - torch
+            - transformers
+        deployments:
+          - name: Translator
+            num_replicas: 1
+            ray_actor_options:
+              num_cpus: 0.2
+            user_config:
+              language: french
+          - name: Summarizer
+            num_replicas: 1
+            ray_actor_options:
+              num_cpus: 0.2
+      # - name: fake
+      #   import_path: fake:app
+      #   route_prefix: /fake
+      #   runtime_env:
+      #     working_dir: "https://github.com/konsti/ray-experiments/archive/refs/heads/master.zip"
+      #     pip:
+      #       - faker
+      #   deployments:
+      #     - name: create_fake_email
+      - name: llm
+        import_path: llm:build_app
+        route_prefix: /llm
+        runtime_env:
+          working_dir: "https://github.com/konsti/ray-experiments/archive/refs/heads/master.zip"
+          pip:
+            - fastapi
+            - starlette
+            - vllm
+        deployments:
+          - name: llm_server
+            num_replicas: 1
+            user_config:
+              engine_args:
+                model: "NousResearch/Meta-Llama-3-8B-Instruct"
+                tensor_parallel_size: 1
+  rayClusterConfig:
+    rayVersion: "2.9.0"
+    headGroupSpec:
+      serviceType: ClusterIP
+      rayStartParams:
+        dashboard-host: "0.0.0.0"
+        num-gpus: "0"
+      template:
+        spec:
+          containers:
+            - name: ray-head
+              image: rayproject/ray:2.9.0
+              env:
+                - name: RAY_GRAFANA_IFRAME_HOST
+                  value: https://grafana.konsti.org
+                - name: RAY_GRAFANA_HOST
+                  value: http://monitoring-grafana.monitoring.svc:80
+                - name: RAY_PROMETHEUS_HOST
+                  value: http://monitoring-kube-prometheus-prometheus.monitoring.svc:9090
+              ports:
+                - containerPort: 6379
+                  name: gcs
+                - containerPort: 8265
+                  name: dashboard
+                - containerPort: 10001
+                  name: client
+                - containerPort: 8000
+                  name: serve
+              lifecycle:
+                preStop:
+                  exec:
+                    command: ["/bin/sh", "-c", "ray stop"]
+              volumeMounts:
+                - mountPath: /tmp/ray
+                  name: ray-logs
+              resources:
+                limits:
+                  memory: "8G"
+                requests:
+                  cpu: 4
+                  memory: "8G"
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: nvidia.com/gpu.present
+                    operator: DoesNotExist
+          volumes:
+            - name: ray-logs
+              emptyDir: {}
+    workerGroupSpecs:
+      - replicas: 1
+        minReplicas: 1
+        maxReplicas: 2
+        groupName: gpu-group
+        rayStartParams: {}
+        template:
+          spec:
+            containers:
+              - name: ray-worker
+                image: rayproject/ray:2.9.0-gpu
+                lifecycle:
+                  preStop:
+                    exec:
+                      command: ["/bin/sh", "-c", "ray stop"]
+                volumeMounts:
+                  - mountPath: /tmp/ray
+                    name: ray-logs
+                resources:
+                  limits:
+                    memory: "50G"
+                    nvidia.com/gpu: 1
+                  requests:
+                    cpu: 8
+                    memory: "50G"
+                    nvidia.com/gpu: 1
+            runtimeClassName: nvidia
+            tolerations:
+              - key: nvidia.com/gpu
+                operator: Exists
+                effect: NoSchedule
+            volumes:
+              - name: ray-logs
+                emptyDir: {}

@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ray-service-text-ml-dashboard-ingress
+  namespace: ray
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: >-
+      kube-system-redirect-https@kubernetescrd,
+      kube-system-basic-auth@kubernetescrd
+    cert-manager.io/cluster-issuer: letsencrypt-production
+spec:
+  tls:
+    - hosts:
+        - text-ml-example-dashboard.konsti.org
+      secretName: text-ml-example-dashboard-tls
+  rules:
+    - host: text-ml-example-dashboard.konsti.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ray-service-text-ml-head-svc
+                port:
+                  number: 8265
