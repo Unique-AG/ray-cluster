@@ -1,4 +1,4 @@
-## UNIQUE Custom Proprietary License
+## UNIQUE Custom Proprietary License 1.0
 
 ## 1. Definitions
 
