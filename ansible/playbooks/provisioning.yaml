@@ -1,0 +1,54 @@
+---
+- name: Cluster Provisioning
+  hosts: cluster
+  become: true
+  gather_facts: false
+  roles:
+    - cluster
+  vars:
+    ansible_user: root
+  tags: cluster
+
+- name: SSH Provisioning
+  hosts: cluster
+  become: true
+  gather_facts: false
+  roles:
+    - ssh
+  tags: ssh
+
+- name: Kubernetes Provisioning
+  hosts: cluster
+  become: true
+  gather_facts: true
+  post_tasks:
+    - name: Perform post-install tasks
+      ansible.builtin.import_role:
+        name: k3s
+        tasks_from: postinstall
+  roles:
+    - helm
+    - k3s
+  serial:
+    - "{{ groups['server'] | length }}"
+    - "{{ groups['agent'] | length }}"
+  tags: kubernetes
+
+- name: Charts Provisioning
+  hosts: server
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Include chart roles
+      include_role:
+        name: "{{ item }}"
+      loop: "{{ chart_roles }}"
+  tags: charts
+
+- name: Apps Provisioning
+  hosts: server
+  become: true
+  gather_facts: true
+  roles:
+    - apps
+  tags: apps

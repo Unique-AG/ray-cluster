@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-{{ dashboard_file | splitext | first | replace('_', '-') }}
+  namespace: {{ ray_vars.kubernetes.namespace }}
+  labels:
+    grafana_dashboard: "1"
+data:
+  {{ dashboard_file }}: |
+{{ dashboard_content | indent(4, True) }}

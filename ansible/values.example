@@ -1,0 +1,58 @@
+---
+# Server hosts act as control plane for the cluster. Pods will still be scheduled on all nodes.
+server_hosts:
+  ray-test-cluster-1.domain.org:
+
+# Agent hosts act as workers in the cluster.
+agent_hosts:
+  ray-test-cluster-2.domain.org:
+  ray-test-cluster-3.domain.org:
+
+# The main domain for the cluster. All services will be available under this domain.
+domain: example.com
+
+# The roles to install in the cluster.
+chart_roles:
+  - certmanager
+  - argocd
+  - basic_auth
+  - prometheus
+  - kured
+  - longhorn
+  - harbor
+  - nvidia_gpu_operator
+  - ray
+
+apps:
+  - text-ml-example
+
+k3s_vars:
+  cluster_name: "ray-test-cluster"
+
+cluster_vars:
+  management_user_ssh_keys:
+    - "ssh-ed25519 <ssh-key> example-description"
+
+## Chart specific values
+argocd:
+  server:
+    admin:
+      password: password (we suggest using Ansible Vault or 1Password lookups e.g. {{ lookup('community.general.onepassword', 'RAY_CLUSTER_ARGOCD_ADMIN_PASSWORD') }})
+    user:
+      name: user
+      password: password123!
+
+basic_auth:
+  user:
+    name: admin
+    password: password123!
+
+harbor:
+  admin:
+    password: password123!
+
+prometheus:
+  grafana:
+    user:
+      name: admin
+      password: password123!

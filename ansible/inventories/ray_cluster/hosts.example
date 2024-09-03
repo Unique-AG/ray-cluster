@@ -1,0 +1,13 @@
+server:
+  hosts:
+    ray-test-cluster-1.example.com:
+
+agent:
+  hosts:
+    ray-test-cluster-2.example.com:
+    ray-test-cluster-3.example.com:
+
+cluster:
+  children:
+    server:
+    agent:

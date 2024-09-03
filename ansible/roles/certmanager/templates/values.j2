@@ -1,0 +1,40 @@
+cainjector:
+  resources:
+    limits:
+      cpu: {{ certmanager_vars.kubernetes.cainjector.resources.limits.cpu }}
+      memory: {{ certmanager_vars.kubernetes.cainjector.resources.limits.memory }}
+    requests:
+      cpu: {{ certmanager_vars.kubernetes.cainjector.resources.requests.cpu }}
+      memory: {{ certmanager_vars.kubernetes.cainjector.resources.requests.memory }}
+crds:
+  enabled: true
+  keep: false
+extraArgs: []
+podDisruptionBudget:
+  enabled: true
+  maxUnavailable: 1
+prometheus:
+  serviceMonitor:
+    enabled: true
+    namespace: {{ certmanager_vars.kubernetes.prometheus_namespace }}
+replicaCount: {{ certmanager_vars.kubernetes.controller.replicas }}
+resources:
+  limits:
+    cpu: {{ certmanager_vars.kubernetes.controller.resources.limits.cpu }}
+    memory: {{ certmanager_vars.kubernetes.controller.resources.limits.memory }}
+  requests:
+    cpu: {{ certmanager_vars.kubernetes.controller.resources.requests.cpu }}
+    memory: {{ certmanager_vars.kubernetes.controller.resources.requests.memory }}
+strategy:
+  rollingUpdate:
+    maxSurge: 0
+    maxUnavailable: 1
+  type: RollingUpdate
+webhook:
+  resources:
+    limits:
+      cpu: {{ certmanager_vars.kubernetes.webhook.resources.limits.cpu }}
+      memory: {{ certmanager_vars.kubernetes.webhook.resources.limits.memory }}
+    requests:
+      cpu: {{ certmanager_vars.kubernetes.webhook.resources.requests.cpu }}
+      memory: {{ certmanager_vars.kubernetes.webhook.resources.requests.memory }}

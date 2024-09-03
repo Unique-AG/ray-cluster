@@ -1,0 +1,25 @@
+---
+harbor_vars:
+  kubernetes:
+    helm:
+      chart:
+        name: harbor
+        version: v1.15.1
+      repository:
+        name: harbor
+        org: harbor
+        url: https://helm.goharbor.io
+        github: goharbor/harbor-helm
+    namespace: harbor
+  admin:
+    password: "{{ harbor.admin.password }}"
+  ingress:
+    hostname: harbor.{{ domain }}
+  persistence:
+    storage_class: longhorn
+  resources:
+    limits:
+      memory: 2Gi
+    requests:
+      cpu: 1
+      memory: 1Gi

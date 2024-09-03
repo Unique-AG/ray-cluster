@@ -1,0 +1,45 @@
+expose:
+  type: ingress
+  tls:
+    enabled: true
+    certSource: secret
+    secret:
+      secretName: harbor-tls
+  ingress:
+    hosts:
+      core: {{ harbor_vars.ingress.hostname }}
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.middlewares: >-
+        {{ certmanager_vars.kubernetes.namespace }}-redirect-https@kubernetescrd
+
+externalURL: https://{{ harbor_vars.ingress.hostname }}
+
+harborAdminPassword: {{ harbor_vars.admin.password }}
+
+persistence:
+  persistentVolumeClaim:
+    registry:
+      storageClass: {{ harbor_vars.persistence.storage_class }}
+    chartmuseum:
+      storageClass: {{ harbor_vars.persistence.storage_class }}
+    jobservice:
+      storageClass: {{ harbor_vars.persistence.storage_class }}
+    database:
+      storageClass: {{ harbor_vars.persistence.storage_class }}
+    redis:
+      storageClass: {{ harbor_vars.persistence.storage_class }}
+    trivy:
+      storageClass: {{ harbor_vars.persistence.storage_class }}
+
+resources:
+  limits:
+    memory: {{ harbor_vars.resources.limits.memory }}
+  requests:
+    cpu: {{ harbor_vars.resources.requests.cpu }}
+    memory: {{ harbor_vars.resources.requests.memory }}
+
+# TODO: Add external database for HA
+# TODO: Add external redis for HA

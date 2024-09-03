@@ -1,0 +1,4 @@
+- name: Restart k3s service
+  service:
+    name: '{{ k3s_service_name }}'
+    state: restarted

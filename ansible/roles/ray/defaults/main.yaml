@@ -1,0 +1,15 @@
+---
+ray_vars:
+  kubernetes:
+    helm:
+      repository:
+        org: kuberay
+        url: https://ray-project.github.io/kuberay-helm/
+        github_org: ray-project
+      chart:
+        version: v1.1.1
+    operator:
+      helm:
+        chart:
+          name: kuberay-operator
+    namespace: ray

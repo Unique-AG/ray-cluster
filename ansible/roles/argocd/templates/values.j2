@@ -1,0 +1,81 @@
+applicationSet:
+  resources:
+    limits:
+      memory: {{ argocd_vars.kubernetes.application_set.resources.limits.memory }}
+    requests:
+      cpu: {{ argocd_vars.kubernetes.application_set.resources.requests.cpu }}
+      memory: {{ argocd_vars.kubernetes.application_set.resources.requests.memory }}
+configs:
+  cm:
+    exec.enabled: {{ argocd_vars.kubernetes.configs.cm.exec.enabled }}
+  params:
+    application.namespaces: {{ argocd_vars.kubernetes.server.application.namespaces | join(', ') }}
+    server.insecure: {{ argocd_vars.kubernetes.configs.params.server.insecure }}
+  secret:
+    argocdServerAdminPassword: {{ server['admin']['password'] }}
+controller:
+  resources:
+    limits:
+      memory: {{ argocd_vars.kubernetes.controller.resources.limits.memory }}
+    requests:
+      cpu: {{ argocd_vars.kubernetes.controller.resources.requests.cpu }}
+      memory: {{ argocd_vars.kubernetes.controller.resources.requests.memory }}
+dex:
+  resources:
+    limits:
+      memory: {{ argocd_vars.kubernetes.dex.resources.limits.memory }}
+    requests:
+      cpu: {{ argocd_vars.kubernetes.dex.resources.requests.cpu }}
+      memory: {{ argocd_vars.kubernetes.dex.resources.requests.memory }}
+global:
+  domain: {{ hostname }}
+notifications:
+  resources:
+    limits:
+      memory: {{ argocd_vars.kubernetes.notifications.resources.limits.memory }}
+    requests:
+      cpu: {{ argocd_vars.kubernetes.notifications.resources.requests.cpu }}
+      memory: {{ argocd_vars.kubernetes.notifications.resources.requests.memory }}
+redis:
+  resources:
+    limits:
+      memory: {{ argocd_vars.kubernetes.redis.resources.limits.memory }}
+    requests:
+      cpu: {{ argocd_vars.kubernetes.redis.resources.requests.cpu }}
+      memory: {{ argocd_vars.kubernetes.redis.resources.requests.memory }}
+redis-ha:
+  enabled: {{ argocd_vars.kubernetes.redis.high_availability.enabled }}
+repoServer:
+  autoscaling:
+    enabled: {{ argocd_vars.kubernetes.repo_server.autoscaling.enabled }}
+    minReplicas: {{ argocd_vars.kubernetes.repo_server.autoscaling.min_replicas }}
+    targetCPUUtilizationPercentage: {{ argocd_vars.kubernetes.repo_server.autoscaling.target.cpu_percentage }}
+    targetMemoryUtilizationPercentage: {{ argocd_vars.kubernetes.repo_server.autoscaling.target.memory_percentage }}
+  resources:
+    limits:
+      memory: {{ argocd_vars.kubernetes.repo_server.resources.limits.memory }}
+    requests:
+      cpu: {{ argocd_vars.kubernetes.repo_server.resources.requests.cpu }}
+      memory: {{ argocd_vars.kubernetes.repo_server.resources.requests.memory }}
+server:
+  autoscaling:
+    enabled: {{ argocd_vars.kubernetes.server.autoscaling.enabled }}
+    minReplicas: {{ argocd_vars.kubernetes.server.autoscaling.min_replicas }}
+    targetCPUUtilizationPercentage: {{ argocd_vars.kubernetes.server.autoscaling.target.cpu_percentage }}
+    targetMemoryUtilizationPercentage: {{ argocd_vars.kubernetes.server.autoscaling.target.memory_percentage }}
+  resources:
+    limits:
+      memory: {{ argocd_vars.kubernetes.server.resources.limits.memory }}
+    requests:
+      cpu: {{ argocd_vars.kubernetes.server.resources.requests.cpu }}
+      memory: {{ argocd_vars.kubernetes.server.resources.requests.memory }}
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.middlewares: >-
+        {{ certmanager_vars.kubernetes.namespace }}-redirect-https@kubernetescrd
+    hostname: {{ hostname }}
+    tls: true

@@ -1,0 +1,17 @@
+---
+- name: Import facts
+  ansible.builtin.import_role:
+    name: k3s
+    tasks_from: facts
+
+- name: Role Reset
+  block:
+    - name: Remove repository
+      kubernetes.core.helm_repository:
+        name: '{{ longhorn_vars.kubernetes.helm.repository.org }}'
+        repo_state: absent
+
+    - name: Remove directory
+      ansible.builtin.file:
+        path: /var/lib/longhorn
+        state: absent

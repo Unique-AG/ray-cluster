@@ -1,0 +1,27 @@
+defaultSettings:
+{% if longhorn_vars.kubernetes.default_settings.backup.enabled %}
+  backupTarget: {{ longhorn_vars.kubernetes.default_settings.backup.target }}
+{% if longhorn_vars.kubernetes.default_settings.backup.target[:3] | lower != 'nfs' %}
+  backupTargetCredentialSecret: {{ longhorn_vars.kubernetes.default_settings.backup.secret.name }}
+{% endif %}
+{% endif %}
+  defaultDataLocality: {{ longhorn_vars.kubernetes.default_settings.data_locality }}
+  defaultReplicaCount: {{ longhorn_vars.kubernetes.default_settings.replicas }}
+  nodeDownPodDeletionPolicy: {{ longhorn_vars.kubernetes.default_settings.pod_deletion_policy }}
+  orphanAutoDeletion: {{ longhorn_vars.kubernetes.default_settings.orphan_auto_deletion }}
+  replicaAutoBalance: {{ longhorn_vars.kubernetes.default_settings.replica_auto_balance }}
+persistence:
+  defaultClassReplicaCount: {{ longhorn_vars.kubernetes.persistence.replicas }}
+  defaultDataLocality: {{ longhorn_vars.kubernetes.persistence.data_locality }}
+  migratable: {{ longhorn_vars.kubernetes.persistence.migratable }}
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: >-
+      {{ certmanager_vars.kubernetes.namespace }}-redirect-https@kubernetescrd,
+      {{ basic_auth_vars.kubernetes.namespace }}-basic-auth@kubernetescrd
+  host: {{ longhorn_vars.kubernetes.ingress.subdomain }}.{{ domain }}
+  tls: true

@@ -1,0 +1,55 @@
+---
+- name: Install basic packages
+  apt:
+    name:
+      - unattended-upgrades
+      - vim
+      - gnupg
+      - dnsutils
+      - unzip
+      - software-properties-common
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+    state: present
+
+- name: Configure unattended upgrades
+  template:
+    src: unattended-upgrades.j2
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Harden SSH configuration
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    backup: true
+  notify: Reload SSH
+
+- name: Install security tools
+  apt:
+    name: fail2ban
+    state: present
+
+- name: Configure fail2ban
+  template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    mode: "0644"
+  notify: Restart fail2ban
+
+- name: Ensure fail2ban is started and enabled
+  systemd:
+    name: fail2ban
+    state: started
+    enabled: true
+
+- name: Configure rsyslog to log all sudo activities
+  lineinfile:
+    dest: /etc/rsyslog.d/50-default.conf
+    insertafter: EOF
+    line: "auth,authpriv.*         /var/log/sudo.log"
+  notify: Restart rsyslog

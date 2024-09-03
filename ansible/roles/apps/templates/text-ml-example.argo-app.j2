@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: text-ml-example
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ray
+  sources:
+    - repoURL: https://github.com/Unique-AG/ray-cluster
+      path: text-ml-example/argo
+      targetRevision: HEAD

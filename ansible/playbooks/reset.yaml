@@ -1,0 +1,31 @@
+---
+- name: Cluster Reset
+  hosts: cluster
+  become: true
+  gather_facts: true
+  serial:
+    - 1
+    - 2
+  tasks:
+    - name: Reset cluster
+      ansible.builtin.include_role:
+        apply:
+          tags: '{{ role }}'
+        name: '{{ role }}'
+        tasks_from: reset
+      loop:
+        - k3s
+        - certmanager
+        - argocd
+        - basic_auth        
+        - prometheus
+        - kured
+        - longhorn
+        - harbor
+        - nvidia_gpu_operator
+        - ray
+        - helm
+      loop_control:
+        loop_var: role
+      tags: always
+      when: (role in ansible_run_tags) or (ansible_run_tags == ['all'])

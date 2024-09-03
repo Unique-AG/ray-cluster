@@ -1,0 +1,15 @@
+---
+- name: Set project chart fact
+  ansible.builtin.set_fact:
+    harbor_project_chart: '{{ harbor_vars.kubernetes.helm.repository.org }}/{{ harbor_vars.kubernetes.helm.repository.name }}'
+  run_once: true
+
+- name: Set project url fact
+  ansible.builtin.set_fact:
+    harbor_project_url: https://github.com/{{ harbor_vars.kubernetes.helm.repository.github }}/releases/tag
+  run_once: true
+
+- name: Set project tag url fact
+  ansible.builtin.set_fact:
+    harbor_project_url_tag: '{{ harbor_project_url }}/{{ harbor_vars.kubernetes.helm.chart.version }}'
+  run_once: true

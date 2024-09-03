@@ -1,0 +1,94 @@
+---
+argocd_vars:
+  kubernetes:
+    application_set:
+      replicas: 2
+      resources:
+        limits:
+          memory: 2Gi
+        requests:
+          cpu: 1
+          memory: 2Gi
+    configs:
+      cm:
+        exec:
+          enabled: true
+      params:
+        server:
+          insecure: true
+    controller:
+      resources:
+        limits:
+          memory: 2Gi
+        requests:
+          cpu: 1
+          memory: 2Gi
+    dex:
+      resources:
+        limits:
+          memory: 2Gi
+        requests:
+          cpu: 1
+          memory: 2Gi
+    helm:
+      chart:
+        name: argo-cd
+        org: argoproj
+        version: v7.5.0
+      repository:
+        name: argo-helm
+        org: argoproj
+        url: https://argoproj.github.io
+    namespace: argocd
+    notifications:
+      resources:
+        limits:
+          memory: 2Gi
+        requests:
+          cpu: 1
+          memory: 2Gi
+    redis:
+      high_availability:
+        enabled: true
+      resources:
+        limits:
+          memory: 2Gi
+        requests:
+          cpu: 1
+          memory: 2Gi
+    repo_server:
+      autoscaling:
+        enabled: true
+        min_replicas: 2
+        target:
+          cpu_percentage: 60
+          memory_percentage: 80
+      resources:
+        limits:
+          memory: 2Gi
+        requests:
+          cpu: 1
+          memory: 2Gi
+    server:
+      admin:
+        password: "{{ argocd.server.admin.password }}"
+      application:
+        namespaces:
+          - argocd
+      autoscaling:
+        enabled: true
+        min_replicas: 2
+        target:
+          cpu_percentage: 60
+          memory_percentage: 80
+      ingress:
+        subdomain: argocd
+      resources:
+        limits:
+          memory: 2Gi
+        requests:
+          cpu: 4
+          memory: 2Gi
+      user:
+        name: "{{ argocd.server.user.name }}"
+        password: "{{ argocd.server.user.password }}"

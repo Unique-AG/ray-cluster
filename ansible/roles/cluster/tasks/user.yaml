@@ -1,0 +1,22 @@
+---
+- name: Ensure management user exists
+  user:
+    name: "{{ cluster_vars.management_user }}"
+    groups: sudo
+    shell: /bin/bash
+    create_home: true
+
+- name: Set up authorized keys for management user
+  authorized_key:
+    user: "{{ cluster_vars.management_user }}"
+    state: present
+    key: "{{ item }}"
+  loop: "{{ cluster_vars.management_user_ssh_keys }}"
+
+- name: Allow management user to use sudo without password
+  lineinfile:
+    path: "/etc/sudoers.d/{{ cluster_vars.management_user }}-user"
+    create: true
+    line: "{{ cluster_vars.management_user }} ALL=(ALL:ALL) NOPASSWD:ALL"
+    mode: "0440"
+    validate: "visudo -cf %s"

@@ -1,0 +1,15 @@
+---
+- name: Set project chart fact
+  ansible.builtin.set_fact:
+    nvidia_gpu_operator_project_chart: '{{ nvidia_gpu_operator_vars.kubernetes.helm.repository.org }}/{{ nvidia_gpu_operator_vars.kubernetes.helm.chart.name }}'
+  run_once: true
+
+- name: Set project url fact
+  ansible.builtin.set_fact:
+    nvidia_gpu_operator_project_url: https://github.com/{{ nvidia_gpu_operator_project_chart }}/releases/tag
+  run_once: true
+
+- name: Set project tag url fact
+  ansible.builtin.set_fact:
+    nvidia_gpu_operator_project_url_tag: '{{ nvidia_gpu_operator_project_url }}/{{ nvidia_gpu_operator_vars.kubernetes.helm.chart.version }}'
+  run_once: true

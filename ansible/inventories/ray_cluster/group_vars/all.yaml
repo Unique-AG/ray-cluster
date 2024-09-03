@@ -1,0 +1,3 @@
+---
+ansible_user: management
+domain: "{{ cluster.domain }}"

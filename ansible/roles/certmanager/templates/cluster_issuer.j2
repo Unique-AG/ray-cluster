@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ certmanager_vars.kubernetes.tls.cluster_issuer[issuer_type].name }}
+spec:
+  acme:
+    email: {{ certmanager_vars.kubernetes.tls.cluster_issuer[issuer_type].email }}
+    server: {{ certmanager_vars.kubernetes.tls.cluster_issuer[issuer_type].server }}
+    privateKeySecretRef:
+      name: {{ certmanager_vars.kubernetes.tls.cluster_issuer[issuer_type].name }}
+    solvers:
+    - http01:
+        ingress:
+          class: traefik

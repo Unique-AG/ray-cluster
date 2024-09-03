@@ -1,0 +1,37 @@
+---
+- name: Set facts
+  ansible.builtin.import_tasks:
+    file: facts.yaml
+
+- name: Test SSH connection from localhost
+  local_action:
+    module: command
+    cmd: ssh -o BatchMode=yes -o ConnectTimeout=5 {{ ansible_user }}@{{ inventory_hostname }} echo OK
+  register: root_connection_test
+  become: false
+  ignore_errors: true
+  changed_when: false
+
+- name: Set fact to skip tasks if root connection fails
+  set_fact:
+    skip_cluster_tasks: "{{ root_connection_test.rc != 0 }}"
+
+- name: Gather facts
+  ansible.builtin.gather_facts:
+    gather_subset:
+      - all
+    gather_timeout: 10
+  when: not skip_cluster_tasks
+
+- name: Check ubuntu version
+  command: grep -oP '(?<=DISTRIB_RELEASE=)\d+\.\d+' /etc/lsb-release
+  register: ubuntu_version_output
+  when: not skip_cluster_tasks
+
+- name: Verify Ubuntu version
+  assert:
+    that:
+      - ubuntu_version_output.stdout == cluster_vars.ubuntu_version
+    fail_msg: "Ubuntu version mismatch. Expected {{ cluster_vars.ubuntu_version }}, but found {{ ubuntu_version_output.stdout }}"
+    success_msg: "Ubuntu version {{ cluster_vars.ubuntu_version }} verified"
+  when: not skip_cluster_tasks

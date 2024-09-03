@@ -1,0 +1,4 @@
+---
+- name: Set facts
+  ansible.builtin.import_tasks:
+    file: facts.yaml

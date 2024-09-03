@@ -1,0 +1,14 @@
+---
+- name: Import facts
+  ansible.builtin.include_role:
+    name: "{{ item }}"
+    tasks_from: facts
+  loop:
+    - cluster
+
+- name: Update authorized keys for management user
+  authorized_key:
+    user: "{{ cluster_vars.management_user }}"
+    state: present
+    key: "{{ item }}"
+  loop: "{{ cluster_vars.management_user_ssh_keys }}"

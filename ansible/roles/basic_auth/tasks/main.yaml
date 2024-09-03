@@ -1,0 +1,44 @@
+---
+- name: Import facts
+  ansible.builtin.include_role:
+    name: "{{ item }}"
+    tasks_from: facts
+  loop:
+    - certmanager
+    - k3s
+
+- name: Role Validation
+  ansible.builtin.import_tasks:
+    file: validation.yaml
+
+- name: Role Provisioning
+  when: ansible_host in k3s_server_hosts
+  block:
+    - name: Validate service state
+      ansible.builtin.wait_for:
+        port: "{{ k3s_vars.server.api.port }}"
+        state: started
+        timeout: 30
+      any_errors_fatal: true
+
+    - name: Install apache2-utils (for htpasswd)
+      ansible.builtin.apt:
+        name: apache2-utils
+        state: present
+      become: true
+
+    - name: Generate htpasswd string
+      ansible.builtin.shell: "htpasswd -nb {{ basic_auth_vars.user.name }} '{{ basic_auth_vars.user.password }}'"
+      register: htpasswd_result
+
+    - name: Create basic auth secret
+      kubernetes.core.k8s:
+        definition: "{{ lookup('ansible.builtin.template', 'basic_auth_secret.j2') | from_yaml }}"
+        kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+        wait: true
+
+    - name: Create basic auth middleware
+      kubernetes.core.k8s:
+        definition: "{{ lookup('ansible.builtin.template', 'basic_auth_middleware.j2') | from_yaml }}"
+        kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+        wait: true

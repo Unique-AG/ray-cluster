@@ -1,0 +1,34 @@
+---
+- name: Import facts
+  ansible.builtin.include_role:
+    name: "{{ item }}"
+    tasks_from: facts
+  loop:
+    - k3s
+
+- name: Role Reset
+  when: ansible_host in k3s_server_hosts
+  block:
+    - name: Remove basic auth secret
+      kubernetes.core.k8s:
+        kind: Secret
+        name: "{{ basic_auth_vars.secret.name }}"
+        namespace: "{{ basic_auth_vars.kubernetes.namespace }}"
+        state: absent
+        kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+
+    - name: Remove basic auth middleware
+      kubernetes.core.k8s:
+        api_version: traefik.containo.us/v1alpha1
+        kind: Middleware
+        name: basic-auth
+        namespace: "{{ basic_auth_vars.kubernetes.namespace }}"
+        state: absent
+        kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+
+    - name: Remove apache2-utils package
+      ansible.builtin.apt:
+        name: apache2-utils
+        state: absent
+        autoremove: true
+        purge: true

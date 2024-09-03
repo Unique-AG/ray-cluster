@@ -1,0 +1,108 @@
+alertmanager:
+  alertmanagerSpec:
+    replicas: {{ prometheus_vars.kubernetes.alertmanager.replicas }}
+    resources:
+      limits:
+        cpu: {{ prometheus_vars.kubernetes.alertmanager.resources.limits.cpu }}
+        memory: {{ prometheus_vars.kubernetes.alertmanager.resources.limits.memory }}
+      requests:
+        cpu: {{ prometheus_vars.kubernetes.alertmanager.resources.requests.cpu }}
+        memory: {{ prometheus_vars.kubernetes.alertmanager.resources.requests.memory }}
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: {{ prometheus_vars.kubernetes.alertmanager.storage }}
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.middlewares: >-
+        {{ certmanager_vars.kubernetes.namespace }}-redirect-https@kubernetescrd,
+        {{ basic_auth_vars.kubernetes.namespace }}-basic-auth@kubernetescrd
+    hosts:
+      - {{ prometheus_vars.kubernetes.alertmanager.ingress.subdomain }}.{{ domain }}
+    tls:
+      - hosts:
+          - {{ prometheus_vars.kubernetes.alertmanager.ingress.subdomain }}.{{ domain }}
+        secretName: {{ prometheus_vars.kubernetes.alertmanager.ingress.tls.secret_name }}
+grafana:
+  grafana.ini:
+    security:
+      allow_embedding: true
+    auth.anonymous:
+      enabled: true
+      org_role: Admin
+  admin:
+    existingSecret: {{ prometheus_vars.kubernetes.grafana.secret.name }}
+    passwordKey: password
+    userKey: username
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.middlewares: >-
+        {{ certmanager_vars.kubernetes.namespace }}-redirect-https@kubernetescrd,
+        {{ basic_auth_vars.kubernetes.namespace }}-basic-auth@kubernetescrd
+    hosts:
+      - {{ prometheus_vars.kubernetes.grafana.ingress.subdomain }}.{{ domain }}
+    tls:
+      - hosts:
+          - {{ prometheus_vars.kubernetes.grafana.ingress.subdomain }}.{{ domain }}
+        secretName: {{ prometheus_vars.kubernetes.grafana.ingress.tls.secret_name }}
+kubeControllerManager:
+  endpoints:
+    {{ k3s_server_ips | to_nice_yaml | indent(4) }}
+kubeEtcd:
+  endpoints:
+    {{ k3s_server_ips | to_nice_yaml | indent(4) }}
+kubeProxy:
+  endpoints:
+    {{ k3s_server_ips | to_nice_yaml | indent(4) }}
+kubeScheduler:
+  endpoints:
+    {{ k3s_server_ips | to_nice_yaml | indent(4) }}
+prometheus:
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.middlewares: >-
+        {{ certmanager_vars.kubernetes.namespace }}-redirect-https@kubernetescrd,
+        {{ basic_auth_vars.kubernetes.namespace }}-basic-auth@kubernetescrd
+    hosts:
+      - {{ prometheus_vars.kubernetes.prometheus.ingress.subdomain }}.{{ domain }}
+    tls:
+      - hosts:
+          - {{ prometheus_vars.kubernetes.prometheus.ingress.subdomain }}.{{ domain }}
+        secretName: {{ prometheus_vars.kubernetes.prometheus.ingress.tls.secret_name }}
+  prometheusSpec:
+    enableAdminAPI: true
+    replicaExternalLabelName: replica
+    resources:
+      limits:
+        cpu: {{ prometheus_vars.kubernetes.prometheus.resources.limits.cpu }}
+        memory: {{ prometheus_vars.kubernetes.prometheus.resources.limits.memory }}
+      requests:
+        cpu: {{ prometheus_vars.kubernetes.prometheus.resources.requests.cpu }}
+        memory: {{ prometheus_vars.kubernetes.prometheus.resources.requests.memory }}
+    serviceMonitorSelectorNilUsesHelmValues: false
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: {{ prometheus_vars.kubernetes.prometheus.storage }}

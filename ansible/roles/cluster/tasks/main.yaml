@@ -1,0 +1,29 @@
+---
+- name: Role Validation
+  ansible.builtin.import_tasks:
+    file: validation.yaml
+
+- name: User Configuration
+  ansible.builtin.import_tasks:
+    file: user.yaml
+  when: not skip_cluster_tasks
+
+- name: Cluster Provisioning
+  block:
+    - name: Cluster Upgrade
+      ansible.builtin.import_tasks:
+        file: upgrade.yaml
+
+    - name: Cluster Configuration
+      ansible.builtin.import_tasks:
+        file: configuration.yaml
+  when: not skip_cluster_tasks
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+  when: not skip_cluster_tasks
+
+- name: Reboot
+  ansible.builtin.import_tasks:
+    file: reboot.yaml
+  when: not skip_cluster_tasks

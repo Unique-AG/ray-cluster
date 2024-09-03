@@ -1,0 +1,22 @@
+---
+operator:
+  defaultRuntime: {{ nvidia_gpu_operator_vars.kubernetes.default_settings.operator.defaultRuntime }}
+driver:
+  enabled: true
+toolkit:
+  enabled: {{ nvidia_gpu_operator_vars.kubernetes.default_settings.toolkit.enabled }}
+  env:
+    - name: CONTAINERD_CONFIG
+      value: /var/lib/rancher/k3s/agent/etc/containerd/config.toml
+    - name: CONTAINERD_SOCKET
+      value: /var/run/k3s/containerd/containerd.sock
+    - name: CONTAINERD_RUNTIME_CLASS
+      value: nvidia
+    - name: CONTAINERD_SET_AS_DEFAULT
+      value: "true"
+devicePlugin:
+  enabled: true
+gfd:
+  enabled: true
+mig:
+  strategy: mixed

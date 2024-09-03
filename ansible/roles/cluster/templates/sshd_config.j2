@@ -1,0 +1,16 @@
+PermitRootLogin no
+MaxAuthTries 3
+MaxSessions 500
+LoginGraceTime 20
+AuthorizedKeysFile .ssh/authorized_keys
+PasswordAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+KerberosAuthentication no
+GSSAPIAuthentication no
+UsePAM yes
+X11Forwarding no
+PrintMotd no
+AcceptEnv LANG LC_*
+Subsystem sftp /usr/lib/openssh/sftp-server
+AllowUsers {{ cluster_vars.management_user }}

@@ -1,0 +1,50 @@
+---
+prometheus_vars:
+  kubernetes:
+    alertmanager:
+      ingress:
+        subdomain: alertmanager
+        tls:
+          secret_name: alertmanager-tls
+      replicas: 2
+      resources:
+        limits:
+          cpu: 400m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+      storage: 5Gi
+    helm:
+      chart:
+        name: kube-prometheus-stack
+        prefix: monitoring
+        version: v62.3.0
+      repository:
+        name: helm-charts
+        org: prometheus-community
+        url: https://prometheus-community.github.io
+    grafana:
+      ingress:
+        subdomain: grafana
+        tls:
+          secret_name: grafana-tls
+      secret:
+        name: grafana-secret
+      user:
+        name: "{{ prometheus.grafana.user.name }}"
+        password: "{{ prometheus.grafana.user.password }}"
+    namespace: monitoring
+    prometheus:
+      ingress:
+        subdomain: prometheus
+        tls:
+          secret_name: prometheus-tls
+      resources:
+        limits:
+          cpu: 1
+          memory: 4Gi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+      storage: 50Gi

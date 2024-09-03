@@ -1,0 +1,20 @@
+{% if k3s_service_type | lower == 'server' %}
+{% if ansible_host == k3s_server_default_host and not k3s_config_postinstall %}
+cluster-init: true
+write-kubeconfig-mode: "0644"
+{% endif %}
+etcd-expose-metrics: true
+{% endif %}
+{% if
+  (ansible_host != k3s_server_default_host and k3s_service_type | lower == 'server') or
+  (k3s_non_ha_cluster and k3s_service_type | lower == 'agent')
+%}
+server: https://{{ k3s_server_default_host }}:{{ k3s_vars.server.api.port }}
+{% endif %}
+{% if k3s_service_type | lower == 'server' %}
+tls-san:
+  {{ k3s_vars.server.tls_san | to_nice_yaml | indent(2) }}
+{%- endif %}
+{% if k3s_token | length > 0 %}
+token: {{ k3s_token }}
+{% endif %}

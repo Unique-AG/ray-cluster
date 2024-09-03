@@ -1,0 +1,17 @@
+---
+k3s_vars:
+  cluster_name: "{{ cluster.name }}"
+  management_user_group: management
+  directory:
+    bin: /usr/local/bin
+    config: /etc/rancher/k3s
+    lib: /var/lib/rancher/k3s
+  server:
+    kubeconfig:
+      local: true
+    api:
+      port: 6443
+    tls_san:
+      - "{{ ansible_fqdn }}"
+      - "{{ ansible_hostname }}"
+      - "{{ ansible_default_ipv4.address }}"

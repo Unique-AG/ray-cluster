@@ -1,0 +1,168 @@
+---
+- name: Role Validation
+  ansible.builtin.import_tasks:
+    file: validation.yaml
+
+- name: Role Provisioning
+  block:
+    - name: Check if k3s is already installed
+      stat:
+        path: /usr/local/bin/k3s
+      register: k3s_binary
+
+    - name: Create configuration directory
+      ansible.builtin.file:
+        path: '{{ k3s_vars.directory.config }}'
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      when: not k3s_binary.stat.exists
+
+    - name: Set server configuration postinstall fact
+      ansible.builtin.set_fact:
+        k3s_config_postinstall: false
+      when: not k3s_binary.stat.exists
+
+    - name: Create configuration file
+      ansible.builtin.template:
+        src: config.j2
+        dest: '{{ k3s_vars.directory.config }}/config.yaml'
+        owner: root
+        group: "{{ k3s_vars.management_user_group }}"
+        mode: '0640'
+      when: not k3s_binary.stat.exists
+
+    - name: Install k3s server
+      ansible.builtin.shell: |
+        curl -sfL https://get.k3s.io | sh -s
+      args:
+        executable: /bin/bash
+      when:
+        - not k3s_binary.stat.exists
+        - ansible_host == k3s_server_default_host
+
+    - name: Install k3s agent
+      ansible.builtin.shell: |
+        curl -sfL https://get.k3s.io | \
+        K3S_URL=https://{{ k3s_server_default_host }}:6443 \
+        K3S_TOKEN={{ k3s_token }} \
+        sh -s -
+      args:
+        executable: /bin/bash
+      when:
+        - not k3s_binary.stat.exists
+        - ansible_host not in k3s_server_hosts
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Server Setup
+  when: ansible_host in k3s_server_hosts
+  block:
+    - name: Set Token
+      when: k3s_token | length == 0
+      block:
+        - name: Wait for token creation
+          ansible.builtin.wait_for:
+            path: '{{ k3s_vars.directory.lib }}/server/node-token'
+
+        - name: Read token
+          ansible.builtin.slurp:
+            path: '{{ k3s_vars.directory.lib }}/server/node-token'
+          register: node_token
+
+        - name: Set token fact
+          ansible.builtin.set_fact:
+            token: '{{ node_token.content | b64decode | trim }}'
+          run_once: true
+
+- name: Local Kubeconfig Setup
+  when:
+    - k3s_vars.server.kubeconfig.local
+    - ansible_host in ['localhost', k3s_server_default_host]
+  run_once: true
+  block:
+    - name: Fetch kubeconfig from remote
+      fetch:
+        src: '{{ k3s_vars.directory.config }}/k3s.yaml'
+        dest: /tmp/k3s-kubeconfig
+        flat: true
+
+    - name: Check if cluster is already in local kubeconfig
+      ansible.builtin.command:
+        cmd: kubectl config view --raw -o jsonpath='{.contexts[?(@.name=="{{k3s_vars.cluster_name}}")].name}'
+      register: cluster_exists
+      delegate_to: localhost
+      become: false
+
+    - name: Update kubeconfig server address and cluster name
+      block:
+        - name: Replace server address with FQDN
+          replace:
+            path: /tmp/k3s-kubeconfig
+            regexp: "https://127.0.0.1:6443"
+            replace: "https://{{ k3s_server_default_host }}:6443"
+
+        - name: Rename cluster
+          replace:
+            path: /tmp/k3s-kubeconfig
+            regexp: "name: default"
+            replace: "name: {{ k3s_vars.cluster_name }}"
+
+        - name: Update context name
+          replace:
+            path: /tmp/k3s-kubeconfig
+            regexp: "name: default"
+            replace: "name: {{ k3s_vars.cluster_name }}"
+            after: "contexts:"
+
+        - name: Update user name
+          replace:
+            path: /tmp/k3s-kubeconfig
+            regexp: "user: default"
+            replace: "user: {{ k3s_vars.cluster_name }}"
+            after: "contexts:"
+
+        - name: Update context cluster
+          replace:
+            path: /tmp/k3s-kubeconfig
+            regexp: "cluster: default"
+            replace: "cluster: {{ k3s_vars.cluster_name }}"
+            after: "contexts:"
+
+        - name: Update current-context
+          replace:
+            path: /tmp/k3s-kubeconfig
+            regexp: "current-context: default"
+            replace: "current-context: {{ k3s_vars.cluster_name }}"
+
+      delegate_to: localhost
+      become: false
+      when: cluster_exists.stdout == ""
+
+    - name: Ensure ~/.kube directory exists
+      file:
+        path: ~/.kube
+        state: directory
+        mode: "0700"
+      delegate_to: localhost
+      become: false
+      when: cluster_exists.stdout == ""
+
+    - name: Add k3s cluster to ~/.kube/config
+      shell: |
+        KUBECONFIG=~/.kube/config:/tmp/k3s-kubeconfig kubectl config view --flatten > /tmp/merged-config
+        mv /tmp/merged-config ~/.kube/config
+        chmod 600 ~/.kube/config
+      delegate_to: localhost
+      become: false
+      when: cluster_exists.stdout == ""
+
+    - name: Remove temporary kubeconfig
+      file:
+        path: /tmp/k3s-kubeconfig
+        state: absent
+      delegate_to: localhost
+      become: false
+      when: cluster_exists.stdout == ""

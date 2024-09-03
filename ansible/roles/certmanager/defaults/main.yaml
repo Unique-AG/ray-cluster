@@ -1,0 +1,49 @@
+---
+certmanager_vars:
+  kubernetes:
+    cainjector:
+      resources:
+        limits:
+          cpu: 400m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+    controller:
+      replicas: 2
+      resources:
+        limits:
+          cpu: 400m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+    helm:
+      chart:
+        name: cert-manager
+        org: cert-manager
+        version: v1.15.3
+      repository:
+        name: cert-manager
+        org: jetstack
+        url: https://charts.jetstack.io
+    namespace: kube-system
+    prometheus_namespace: monitoring
+    tls:
+      cluster_issuer:
+        staging:
+          name: letsencrypt-staging
+          email: konstantin@unique.ch
+          server: https://acme-staging-v02.api.letsencrypt.org/directory
+        production:
+          name: letsencrypt-production
+          email: konstantin@unique.ch
+          server: https://acme-v02.api.letsencrypt.org/directory
+    webhook:
+      resources:
+        limits:
+          cpu: 400m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 64Mi

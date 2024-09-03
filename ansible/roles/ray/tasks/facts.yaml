@@ -1,0 +1,14 @@
+---
+- name: Set operator project chart fact
+  ansible.builtin.set_fact:
+    ray_operator_project_chart: '{{ ray_vars.kubernetes.helm.repository.org }}/{{ ray_vars.kubernetes.operator.helm.chart.name }}'
+  run_once: true
+
+- name: Set project url fact
+  ansible.builtin.set_fact:
+    ray_project_url: https://github.com/{{ ray_vars.kubernetes.helm.repository.github_org }}/{{ ray_vars.kubernetes.helm.repository.org }}/releases/tag
+
+- name: Set project tag url fact
+  ansible.builtin.set_fact:
+    ray_project_url_tag: '{{ ray_project_url }}/{{ ray_vars.kubernetes.helm.chart.version }}'
+  run_once: true

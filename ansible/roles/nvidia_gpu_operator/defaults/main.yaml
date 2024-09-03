@@ -1,0 +1,16 @@
+---
+nvidia_gpu_operator_vars:
+  kubernetes:
+    default_settings:
+      operator:
+        defaultRuntime: containerd
+      toolkit:
+        enabled: true
+    helm:
+      chart:
+        name: gpu-operator
+        version: v24.6.1
+      repository:
+        org: nvidia
+        url: https://helm.ngc.nvidia.com/nvidia
+    namespace: gpu-operator

@@ -1,0 +1,43 @@
+// This template file configures unattended-upgrades for automatically installing updates.
+
+Unattended-Upgrade::Allowed-Origins {
+    // Automatically upgrade packages from these origins.
+    "${distro_id}:${distro_codename}-security";
+    "${distro_id}:${distro_codename}-updates";
+    "${distro_id}:${distro_codename}-backports";
+
+    // Uncomment the line below if you want to automatically install packages from the release.
+    // "${distro_id}:${distro_codename}-release";
+};
+
+// List of packages to always upgrade.
+Unattended-Upgrade::Package-Blacklist {
+    // This is an array of packages to exclude from unattended upgrades.
+    // Example:
+    // "vim";
+    // "libc6";
+    // "libc6-dev";
+    // "libc6-i686";
+};
+
+// Automatically reboot if necessary.
+Unattended-Upgrade::Automatic-Reboot "true";
+
+// Specify the time to reboot (default is "now").
+Unattended-Upgrade::Automatic-Reboot-Time "02:00";
+
+// Email configuration for unattended upgrades.
+Unattended-Upgrade::Mail "root";
+Unattended-Upgrade::MailOnlyOnError "true";
+
+// Enable logging to syslog.
+Unattended-Upgrade::SyslogEnable "true";
+Unattended-Upgrade::SyslogFacility "daemon";
+
+// Perform regular maintenance.
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+Unattended-Upgrade::Remove-New-Unused-Dependencies "true";
+Unattended-Upgrade::Automatic-Reboot-WithUsers "true";
+
+// Timeouts for unattended-upgrades.
+Acquire::http::Dl-Limit "200";
