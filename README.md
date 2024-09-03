@@ -24,6 +24,13 @@ The provisioning playbook has several tags that you can use to run specific task
 
 To run a specific task, use the `--tags` option:
 
-```bash
-ansible-playbook playbooks/provisioning.yaml --extra-vars "@values.yaml" --tags "cluster,ssh,kubernetes,charts,apps"
-```
+ ```bash
+ ansible-playbook playbooks/provisioning.yaml --extra-vars "@values.yaml" --tags "cluster,ssh,kubernetes,charts,apps"
+ ```
+
+## License
+This repository is intended primarily for research, development, testing, and the collection and dissemination of knowledge.
+
+The Ray Research project by UNIQUE is source-disclosed, rather than open source, in order to encourage collaboration and innovation, as well as to provide transparency and insight into the internal mechanisms of UNIQUE. 
+
+Please note that this software is licensed under the _UNIQUE Custom Proprietary License 1.0_. For detailed terms and conditions, refer to the [LICENSE](LICENSE.md) file.
