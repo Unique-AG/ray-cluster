@@ -5,9 +5,9 @@ Unique Ray Cluster
 
 We use Ansible to prepare the cluster. 
 
-1. Create a `values.yaml` file with the appropriate values for your cluster.
+1. Create a `ansible/values.yaml` file with the appropriate values for your cluster.
 
-2. Create a `hosts.yaml` file with the appropriate values for your cluster.
+2. Create a `ansible/inventories/ray_cluster/hosts.yaml` file with the appropriate values for your cluster.
 
 3. Run the playbook from the `ansible` directory with:
 
@@ -25,5 +25,5 @@ The provisioning playbook has several tags that you can use to run specific task
 To run a specific task, use the `--tags` option:
 
 ```bash
-ansible-playbook playbooks/provisioning.yaml --extra-vars "@values.yaml" --tags "cluster,kubernetes,charts,apps"
+ansible-playbook playbooks/provisioning.yaml --extra-vars "@values.yaml" --tags "cluster,ssh,kubernetes,charts,apps"
 ```
