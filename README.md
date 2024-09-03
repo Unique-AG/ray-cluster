@@ -5,9 +5,9 @@ Unique Ray Cluster
 
 We use Ansible to prepare the cluster. 
 
-1. Create a `values.yaml` file with the appropriate values for your cluster.
+1. Create a `ansible/values.yaml` file with the appropriate values for your cluster.
 
-2. Create a `hosts.yaml` file with the appropriate values for your cluster.
+2. Create a `ansible/inventories/ray_cluster/hosts.yaml` file with the appropriate values for your cluster.
 
 3. Run the playbook from the `ansible` directory with:
 
@@ -34,3 +34,6 @@ This repository is intended primarily for research, development, testing, and th
 The Ray Research project by UNIQUE is source-disclosed, rather than open source, in order to encourage collaboration and innovation, as well as to provide transparency and insight into the internal mechanisms of UNIQUE. 
 
 Please note that this software is licensed under the _UNIQUE Custom Proprietary License 1.0_. For detailed terms and conditions, refer to the [LICENSE](LICENSE.md) file.
+=======
+ansible-playbook playbooks/provisioning.yaml --extra-vars "@values.yaml" --tags "cluster,ssh,kubernetes,charts,apps"
+```
