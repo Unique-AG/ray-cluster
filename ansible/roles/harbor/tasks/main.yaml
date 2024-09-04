@@ -27,7 +27,6 @@
         name: '{{ harbor_vars.kubernetes.helm.repository.org }}'
         repo_url: '{{ harbor_vars.kubernetes.helm.repository.url }}'
 
-
     - name: Chart Setup
       run_once: true
       block:
