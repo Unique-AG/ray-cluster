@@ -7,62 +7,64 @@ spec:
   deploymentUnhealthySecondThreshold: 300
   serveConfigV2: |
     applications:
-      - name: text_ml_app
-        import_path: text_ml:app
-        route_prefix: /summarize_translate
-        runtime_env:
-          working_dir: "https://github.com/konsti/ray-experiments/archive/refs/heads/master.zip"
-          pip:
-            - torch
-            - transformers
-        deployments:
-          - name: Translator
-            num_replicas: 1
-            ray_actor_options:
-              num_cpus: 0.2
-            user_config:
-              language: french
-          - name: Summarizer
-            num_replicas: 1
-            ray_actor_options:
-              num_cpus: 0.2
-      # - name: fake
-      #   import_path: fake:app
-      #   route_prefix: /fake
+      # - name: text_ml_app
+      #   import_path: text_ml:app
+      #   route_prefix: /summarize_translate
       #   runtime_env:
       #     working_dir: "https://github.com/konsti/ray-experiments/archive/refs/heads/master.zip"
       #     pip:
-      #       - faker
+      #       - torch
+      #       - transformers
       #   deployments:
-      #     - name: create_fake_email
-      - name: llm
-        import_path: llm:build_app
-        route_prefix: /llm
+      #     - name: Translator
+      #       num_replicas: 1
+      #       ray_actor_options:
+      #         num_cpus: 0.2
+      #       user_config:
+      #         language: french
+      #     - name: Summarizer
+      #       num_replicas: 1
+      #       ray_actor_options:
+      #         num_cpus: 0.2
+      - name: fake
+        import_path: fake:app
+        route_prefix: /fake
         runtime_env:
           working_dir: "https://github.com/konsti/ray-experiments/archive/refs/heads/master.zip"
           pip:
+            - faker
+        deployments:
+          - name: create_fake_email
+      - name: llm
+        import_path: service.llm:model
+        route_prefix: /
+        runtime_env:
+          working_dir: "https://github.com/Unique-AG/ray-cluster/archive/refs/heads/master.zip"
+          pip:
             - fastapi
             - starlette
-            - vllm
+            - "vllm==0.5.4"
+          env_vars:
+            MODEL_ID: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+            TENSOR_PARALLEL_SIZE: "1"
         deployments:
-          - name: llm_server
+          - name: VLLMDeployment
             num_replicas: 1
-            user_config:
-              engine_args:
-                model: "NousResearch/Meta-Llama-3-8B-Instruct"
-                tensor_parallel_size: 1
+            ray_actor_options:
+              num_cpus: 4
   rayClusterConfig:
-    rayVersion: "2.9.0"
+    # rayVersion: "2.9.0"
     headGroupSpec:
       serviceType: ClusterIP
       rayStartParams:
         dashboard-host: "0.0.0.0"
-        num-gpus: "0"
+        # num-cpus: "0"
+        num-gpus: "1"
       template:
         spec:
           containers:
             - name: ray-head
-              image: rayproject/ray:2.9.0
+              image: rayproject/ray:2.33.0-gpu
               env:
                 - name: RAY_GRAFANA_IFRAME_HOST
                   value: https://grafana.konsti.org
@@ -70,6 +72,11 @@ spec:
                   value: http://monitoring-grafana.monitoring.svc:80
                 - name: RAY_PROMETHEUS_HOST
                   value: http://monitoring-kube-prometheus-prometheus.monitoring.svc:9090
+                - name: HUGGING_FACE_HUB_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: huggingface-secret
+                      key: token
               ports:
                 - containerPort: 6379
                   name: gcs
@@ -88,31 +95,49 @@ spec:
                   name: ray-logs
               resources:
                 limits:
-                  memory: "8G"
+                  memory: "50G"
+                  nvidia.com/gpu: 1
                 requests:
                   cpu: 4
-                  memory: "8G"
+                  memory: "50G"
+                  nvidia.com/gpu: 1
+          runtimeClassName: nvidia
           affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
                 nodeSelectorTerms:
-                - matchExpressions:
-                  - key: nvidia.com/gpu.present
-                    operator: DoesNotExist
+                  - matchExpressions:
+                      - key: nvidia.com/gpu.present
+                        operator: Exists
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: ray.io/node-type
+                        operator: In
+                        values: ["worker"]
+                  topologyKey: "kubernetes.io/hostname"
           volumes:
             - name: ray-logs
               emptyDir: {}
     workerGroupSpecs:
       - replicas: 1
         minReplicas: 1
-        maxReplicas: 2
+        maxReplicas: 1
         groupName: gpu-group
-        rayStartParams: {}
+        rayStartParams:
+          num-gpus: "1"
         template:
           spec:
             containers:
               - name: ray-worker
-                image: rayproject/ray:2.9.0-gpu
+                image: rayproject/ray:2.33.0-gpu
+                env:
+                  - name: HUGGING_FACE_HUB_TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        name: huggingface-secret
+                        key: token
                 lifecycle:
                   preStop:
                     exec:
@@ -125,10 +150,25 @@ spec:
                     memory: "50G"
                     nvidia.com/gpu: 1
                   requests:
-                    cpu: 8
+                    cpu: 4
                     memory: "50G"
                     nvidia.com/gpu: 1
             runtimeClassName: nvidia
+            affinity:
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  nodeSelectorTerms:
+                    - matchExpressions:
+                        - key: nvidia.com/gpu.present
+                          operator: Exists
+              podAntiAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  - labelSelector:
+                      matchExpressions:
+                        - key: ray.io/node-type
+                          operator: In
+                          values: ["head"]
+                    topologyKey: "kubernetes.io/hostname"
             tolerations:
               - key: nvidia.com/gpu
                 operator: Exists
