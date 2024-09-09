@@ -44,3 +44,30 @@
           delay: 1
           retries: 3
           until: result is not failed
+
+    - name: Setup Grafana dashboard
+      run_once: true
+      block:
+        - name: Download NVIDIA DCGM Exporter dashboard
+          ansible.builtin.get_url:
+            url: "https://raw.githubusercontent.com/NVIDIA/dcgm-exporter/main/grafana/dcgm-exporter-dashboard.json"
+            dest: "/tmp/dcgm-exporter-dashboard.json"
+          register: dashboard_download
+        - name: Create ConfigMap for NVIDIA DCGM Exporter dashboard
+          kubernetes.core.k8s:
+            definition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: grafana-dashboard-dcgm-exporter
+                namespace: "{{ nvidia_gpu_operator_vars.kubernetes.namespace }}"
+                labels:
+                  grafana_dashboard: "1"
+              data:
+                dcgm-exporter-dashboard.json: "{{ lookup('file', '/tmp/dcgm-exporter-dashboard.json') | from_json | to_json }}"
+          when: dashboard_download is succeeded
+        - name: Remove temporary dashboard file
+          ansible.builtin.file:
+            path: "/tmp/dcgm-exporter-dashboard.json"
+            state: absent
+          when: dashboard_download is succeeded

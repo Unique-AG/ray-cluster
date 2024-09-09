@@ -34,6 +34,15 @@ persistence:
     trivy:
       storageClass: {{ harbor_vars.persistence.storage_class }}
 
+# Ceph Block Storage does not support read-write-many, so we need to use Recreate strategy
+updateStrategy:
+  type: Recreate
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+
 resources:
   limits:
     memory: {{ harbor_vars.resources.limits.memory }}
