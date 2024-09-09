@@ -56,3 +56,7 @@ prometheus:
     user:
       name: admin
       password: password123!
+
+ray:
+  huggingface:
+    token: "{{ lookup('community.general.onepassword', 'RAY_CLUSTER_HUGGINGFACE_TOKEN', field='password') }}"
