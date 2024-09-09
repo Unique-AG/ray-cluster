@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: text-ml-example
+  name: llm-cluster
   namespace: argocd
 spec:
   project: default
@@ -10,5 +10,5 @@ spec:
     namespace: ray
   sources:
     - repoURL: https://github.com/Unique-AG/ray-cluster
-      path: text-ml-example/argo
+      path: llm-cluster/argo
       targetRevision: HEAD

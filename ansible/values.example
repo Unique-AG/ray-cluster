@@ -24,7 +24,7 @@ chart_roles:
   - ray
 
 apps:
-  - text-ml-example
+  - llm-cluster
 
 k3s_vars:
   cluster_name: "ray-test-cluster"

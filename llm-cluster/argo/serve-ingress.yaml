@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ray-service-text-ml-serve-ingress
+  name: llm-cluster-serve-ingress
   namespace: ray
   annotations:
     kubernetes.io/ingress.class: traefik
@@ -12,16 +12,16 @@ metadata:
 spec:
   tls:
     - hosts:
-        - text-ml-example.konsti.org
-      secretName: text-ml-example-tls
+        - llm-cluster.konsti.org
+      secretName: llm-cluster-tls
   rules:
-    - host: text-ml-example.konsti.org
+    - host: llm-cluster.konsti.org
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: ray-service-text-ml-serve-svc
+                name: llm-cluster-serve-svc
                 port:
                   number: 8000
