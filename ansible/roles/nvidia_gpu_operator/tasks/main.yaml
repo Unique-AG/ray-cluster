@@ -53,8 +53,17 @@
             url: "https://raw.githubusercontent.com/NVIDIA/dcgm-exporter/main/grafana/dcgm-exporter-dashboard.json"
             dest: "/tmp/dcgm-exporter-dashboard.json"
           register: dashboard_download
+
+        - name: Read dashboard file content
+          ansible.builtin.slurp:
+            src: "/tmp/dcgm-exporter-dashboard.json"
+          register: dashboard_content
+          when: dashboard_download is succeeded
+
         - name: Create ConfigMap for NVIDIA DCGM Exporter dashboard
           kubernetes.core.k8s:
+            wait: true
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
             definition:
               apiVersion: v1
               kind: ConfigMap
@@ -64,8 +73,9 @@
                 labels:
                   grafana_dashboard: "1"
               data:
-                dcgm-exporter-dashboard.json: "{{ lookup('file', '/tmp/dcgm-exporter-dashboard.json') | from_json | to_json }}"
-          when: dashboard_download is succeeded
+                dcgm-exporter-dashboard.json: "{{ dashboard_content['content'] | b64decode | string }}"
+          when: dashboard_download is succeeded and dashboard_content is succeeded
+
         - name: Remove temporary dashboard file
           ansible.builtin.file:
             path: "/tmp/dcgm-exporter-dashboard.json"
