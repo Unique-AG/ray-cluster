@@ -1,0 +1,28 @@
+---
+rook_ceph_vars:
+  kubernetes:
+    helm:
+      chart:
+        version: v1.15.1
+        operator:
+          name: rook-ceph
+        cluster:
+          name: rook-ceph-cluster
+      repository:
+        name: rook-release
+        url: https://charts.rook.io/release
+        github: https://github.com/rook/rook
+    namespace: rook-ceph
+    dashboard:
+      enabled: true
+    ingress:
+      enabled: true
+      subdomain: ceph
+    monitoring:
+      enabled: true
+    toolbox:
+      enabled: true
+    object_storage:
+      ingress:
+        enabled: true
+        subdomain: ceph-os

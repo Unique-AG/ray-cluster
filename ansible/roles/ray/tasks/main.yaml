@@ -40,11 +40,18 @@
             name: "{{ ray_vars.kubernetes.operator.helm.chart.name }}"
             namespace: "{{ ray_vars.kubernetes.namespace }}"
             update_repo_cache: true
+            values: "{{ lookup('ansible.builtin.template', 'values.j2') | from_yaml }}"
             wait: true
           register: result
           delay: 1
           retries: 3
           until: result is not failed
+
+        - name: Create huggingface secret
+          kubernetes.core.k8s:
+            definition: "{{ lookup('ansible.builtin.template', 'huggingface_secret.j2') | from_yaml }}"
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            wait: true
         
         - name: Create prometheus monitors
           block:

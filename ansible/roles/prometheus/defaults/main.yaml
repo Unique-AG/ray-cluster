@@ -1,6 +1,8 @@
 ---
 prometheus_vars:
   kubernetes:
+    storage:
+      storage_class: ceph-block
     alertmanager:
       ingress:
         subdomain: alertmanager

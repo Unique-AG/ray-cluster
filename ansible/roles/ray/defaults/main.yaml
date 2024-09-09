@@ -13,3 +13,4 @@ ray_vars:
         chart:
           name: kuberay-operator
     namespace: ray
+    

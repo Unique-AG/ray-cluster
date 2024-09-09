@@ -16,7 +16,7 @@ harbor_vars:
   ingress:
     hostname: harbor.{{ domain }}
   persistence:
-    storage_class: longhorn
+    storage_class: ceph-block
   resources:
     limits:
       memory: 2Gi

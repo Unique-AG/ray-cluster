@@ -11,7 +11,7 @@ alertmanager:
     storage:
       volumeClaimTemplate:
         spec:
-          storageClassName: longhorn
+          storageClassName: {{ prometheus_vars.kubernetes.storage.storage_class }}
           accessModes:
             - ReadWriteOnce
           resources:
@@ -100,7 +100,7 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: longhorn
+          storageClassName: {{ prometheus_vars.kubernetes.storage.storage_class }}
           accessModes:
             - ReadWriteOnce
           resources:

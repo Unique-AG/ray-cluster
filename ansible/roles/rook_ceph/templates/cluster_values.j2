@@ -1,0 +1,46 @@
+toolbox:
+  enabled: {{ rook_ceph_vars.kubernetes.toolbox.enabled }}
+monitoring:
+  enabled: {{ rook_ceph_vars.kubernetes.monitoring.enabled }}
+cephClusterSpec:
+  mgr:
+    modules:
+      - name: rook
+        enabled: true
+  dashboard:
+    enabled: {{ rook_ceph_vars.kubernetes.dashboard.enabled }}
+    ssl: false
+  storage:
+    useAllNodes: true
+    useAllDevices: true
+ingress:
+  dashboard:
+    annotations:
+      kubernetes.io/ingress.class: traefik
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.middlewares: >-
+        kube-system-redirect-https@kubernetescrd
+      cert-manager.io/cluster-issuer: letsencrypt-production
+    host:
+      name: {{ rook_ceph_vars.kubernetes.ingress.subdomain }}.{{ domain }}
+    tls:
+      - hosts:
+          - {{ rook_ceph_vars.kubernetes.ingress.subdomain }}.{{ domain }}
+        secretName: rook-ceph-tls
+    ingressClassName: traefik
+cephObjectStorage:
+  ingress:
+    enabled: {{ rook_ceph_vars.kubernetes.object_storage.ingress.enabled }}
+    annotations:
+      kubernetes.io/ingress.class: traefik
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.middlewares: >-
+        kube-system-redirect-https@kubernetescrd
+      cert-manager.io/cluster-issuer: letsencrypt-production
+    host:
+      name: {{ rook_ceph_vars.kubernetes.object_storage.ingress.subdomain }}.{{ domain }}
+    tls:
+      - hosts:
+          - {{ rook_ceph_vars.kubernetes.object_storage.ingress.subdomain }}.{{ domain }}
+        secretName: rook-ceph-tls
+    ingressClassName: traefik
