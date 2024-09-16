@@ -16,6 +16,22 @@
         timeout: 30
       any_errors_fatal: true
 
+    - name: Get secret definitions
+      set_fact:
+        secret_definitions: "{{ secret_definitions | default([]) + [lookup('ansible.builtin.template', item + '.secrets.j2', errors='ignore') | from_yaml] }}"
+      loop: "{{ apps }}"
+      loop_control:
+        loop_var: item
+
+    - name: Create namespaces if they don't exist
+      kubernetes.core.k8s:
+        name: "{{ item.spec.destination.namespace }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+        kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+      loop: "{{ secret_definitions | selectattr('spec.destination.namespace', 'defined') | list }}"
+
     - name: Create ArgoCD Applications
       kubernetes.core.k8s:
         definition: "{{ lookup('ansible.builtin.template', item + '.argo-app.j2') | from_yaml }}"
