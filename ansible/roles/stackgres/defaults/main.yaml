@@ -1,0 +1,24 @@
+---
+stackgres_vars:
+  kubernetes:
+    helm:
+      chart:
+        name: stackgres-operator
+        version: 1.13.0
+      repository:
+        org: stackgres-charts
+        url: https://stackgres.io/downloads/stackgres-k8s/stackgres/helm/
+        github: ongres/stackgres
+    namespace: database
+    adminui:
+      service:
+        type: ClusterIP
+    grafana:
+      autoEmbed: true
+      webHost: monitoring-grafana.monitoring
+      secretNamespace: monitoring
+      secretName: monitoring-grafana
+      secretUserKey: admin-user
+      secretPasswordKey: admin-password
+    ingress:
+      subdomain: stackgres

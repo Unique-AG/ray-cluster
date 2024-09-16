@@ -1,28 +1,27 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: llm-cluster-dashboard-ingress
-  namespace: ray
+  name: {{ stackgres_vars.kubernetes.helm.chart.name }}-ingress
+  namespace: {{ stackgres_vars.kubernetes.namespace }}
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.middlewares: >-
-      kube-system-redirect-https@kubernetescrd,
-      kube-system-basic-auth@kubernetescrd
+      kube-system-redirect-https@kubernetescrd
     cert-manager.io/cluster-issuer: letsencrypt-production
 spec:
   tls:
     - hosts:
-        - llm-cluster-dashboard.konsti.org
-      secretName: llm-cluster-dashboard-tls
+        - {{ stackgres_vars.kubernetes.ingress.subdomain }}.{{ domain }}
+      secretName: {{ stackgres_vars.kubernetes.helm.chart.name }}-tls
   rules:
-    - host: llm-cluster-dashboard.konsti.org
+    - host: {{ stackgres_vars.kubernetes.ingress.subdomain }}.{{ domain }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: llm-cluster-head-svc
+                name: stackgres-restapi
                 port:
-                  number: 8265
+                  number: 80

@@ -1,0 +1,20 @@
+---
+- name: Set project chart fact
+  ansible.builtin.set_fact:
+    stackgres_project_chart: "{{ stackgres_vars.kubernetes.helm.repository.org }}/{{ stackgres_vars.kubernetes.helm.chart.name }}"
+  run_once: true
+
+- name: Set project url fact
+  ansible.builtin.set_fact:
+    stackgres_project_url: https://github.com/{{ stackgres_vars.kubernetes.helm.repository.github }}/releases/tag
+  run_once: true
+
+- name: Set project tag url fact
+  ansible.builtin.set_fact:
+    stackgres_project_url_tag: '{{ stackgres_project_url }}/{{ stackgres_vars.kubernetes.helm.chart.version }}'
+  run_once: true
+
+- name: Set variables fact
+  ansible.builtin.set_fact:
+    stackgres_vars: '{{ stackgres_vars }}'
+  run_once: true
