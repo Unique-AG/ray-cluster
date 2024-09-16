@@ -6,5 +6,5 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
-  generateBucketName: postgres-backup
+  bucketName: postgres-backup
   storageClassName: ceph-bucket

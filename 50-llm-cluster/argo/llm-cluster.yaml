@@ -65,12 +65,12 @@ spec:
                   name: ray-logs
               resources:
                 limits:
-                  memory: "30G"
+                  memory: "24G"
                   nvidia.com/gpu: 1
-                requests:
-                  cpu: 4
-                  memory: "30G"
-                  nvidia.com/gpu: 1
+                # requests:
+                #   cpu: 1
+                #   memory: "24G"
+                #   nvidia.com/gpu: 1
           runtimeClassName: nvidia
           affinity:
             nodeAffinity:
@@ -117,12 +117,12 @@ spec:
                     name: ray-logs
                 resources:
                   limits:
-                    memory: "30G"
+                    memory: "16G"
                     nvidia.com/gpu: 1
-                  requests:
-                    cpu: 4
-                    memory: "30G"
-                    nvidia.com/gpu: 1
+                  # requests:
+                  #   cpu: 1
+                  #   memory: "16G"
+                  #   nvidia.com/gpu: 1
             runtimeClassName: nvidia
             affinity:
               nodeAffinity:
@@ -139,10 +139,6 @@ spec:
                           operator: In
                           values: ["head"]
                     topologyKey: "kubernetes.io/hostname"
-            tolerations:
-              - key: nvidia.com/gpu
-                operator: Exists
-                effect: NoSchedule
             volumes:
               - name: ray-logs
                 emptyDir: {}

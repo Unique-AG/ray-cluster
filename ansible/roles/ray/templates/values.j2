@@ -5,3 +5,6 @@ affinity:
         - matchExpressions:
             - key: nvidia.com/gpu.present
               operator: DoesNotExist
+env:
+  - name: ENABLE_ZERO_DOWNTIME
+    value: "false"

@@ -8,9 +8,21 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: document-chat
-  sources:
-    - repoURL: https://github.com/Unique-AG/ray-cluster
-      path: 10-document-chat/argo
-      targetRevision: HEAD
-      directory:
-        recurse: true
+  source:
+    repoURL: https://github.com/Unique-AG/ray-cluster
+    path: 10-document-chat/argo
+    targetRevision: HEAD
+    directory:
+      recurse: true
+  ignoreDifferences:
+    - group: stackgres.io
+      kind: SGCluster
+      jqPathExpressions:
+        - .spec.managedSql.scripts[].id
+        - '.spec.managedSql.scripts[] | select(.sgScript == "postgres-cluster-default")'
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

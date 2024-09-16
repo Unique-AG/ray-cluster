@@ -8,7 +8,10 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: ray
-  sources:
-    - repoURL: https://github.com/Unique-AG/ray-cluster
-      path: 50-llm-cluster/argo
-      targetRevision: HEAD
+  source:
+    repoURL: https://github.com/Unique-AG/ray-cluster
+    path: 50-llm-cluster/argo
+    targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
