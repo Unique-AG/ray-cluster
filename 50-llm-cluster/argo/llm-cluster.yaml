@@ -1,0 +1,148 @@
+apiVersion: ray.io/v1alpha1
+kind: RayService
+metadata:
+  name: llm-cluster
+spec:
+  serviceUnhealthySecondThreshold: 900
+  deploymentUnhealthySecondThreshold: 300
+  serveConfigV2: |
+    applications:
+      - name: llm
+        import_path: 50-llm-cluster.llm:model
+        route_prefix: /
+        runtime_env:
+          working_dir: "https://github.com/Unique-AG/ray-cluster/archive/refs/heads/master.zip"
+          pip:
+            - fastapi
+            - starlette
+            - "vllm==0.5.4"
+          env_vars:
+            MODEL_ID: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+            TENSOR_PARALLEL_SIZE: "1"
+        deployments:
+          - name: VLLMDeployment
+            num_replicas: 1
+            ray_actor_options:
+              num_cpus: 4
+  rayClusterConfig:
+    headGroupSpec:
+      serviceType: ClusterIP
+      rayStartParams:
+        dashboard-host: "0.0.0.0"
+        num-gpus: "1"
+      template:
+        spec:
+          containers:
+            - name: ray-head
+              image: rayproject/ray:2.33.0-gpu
+              env:
+                - name: RAY_GRAFANA_IFRAME_HOST
+                  value: https://grafana.konsti.org
+                - name: RAY_GRAFANA_HOST
+                  value: http://monitoring-grafana.monitoring.svc:80
+                - name: RAY_PROMETHEUS_HOST
+                  value: http://monitoring-kube-prometheus-prometheus.monitoring.svc:9090
+                - name: HUGGING_FACE_HUB_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: huggingface-secret
+                      key: token
+              ports:
+                - containerPort: 6379
+                  name: gcs
+                - containerPort: 8265
+                  name: dashboard
+                - containerPort: 10001
+                  name: client
+                - containerPort: 8000
+                  name: serve
+              lifecycle:
+                preStop:
+                  exec:
+                    command: ["/bin/sh", "-c", "ray stop"]
+              volumeMounts:
+                - mountPath: /tmp/ray
+                  name: ray-logs
+              resources:
+                limits:
+                  memory: "50G"
+                  nvidia.com/gpu: 1
+                requests:
+                  cpu: 4
+                  memory: "50G"
+                  nvidia.com/gpu: 1
+          runtimeClassName: nvidia
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: nvidia.com/gpu.present
+                        operator: Exists
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: ray.io/node-type
+                        operator: In
+                        values: ["worker"]
+                  topologyKey: "kubernetes.io/hostname"
+          volumes:
+            - name: ray-logs
+              emptyDir: {}
+    workerGroupSpecs:
+      - replicas: 1
+        minReplicas: 1
+        maxReplicas: 1
+        groupName: gpu-group
+        rayStartParams:
+          num-gpus: "1"
+        template:
+          spec:
+            containers:
+              - name: ray-worker
+                image: rayproject/ray:2.33.0-gpu
+                env:
+                  - name: HUGGING_FACE_HUB_TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        name: huggingface-secret
+                        key: token
+                lifecycle:
+                  preStop:
+                    exec:
+                      command: ["/bin/sh", "-c", "ray stop"]
+                volumeMounts:
+                  - mountPath: /tmp/ray
+                    name: ray-logs
+                resources:
+                  limits:
+                    memory: "50G"
+                    nvidia.com/gpu: 1
+                  requests:
+                    cpu: 4
+                    memory: "50G"
+                    nvidia.com/gpu: 1
+            runtimeClassName: nvidia
+            affinity:
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  nodeSelectorTerms:
+                    - matchExpressions:
+                        - key: nvidia.com/gpu.present
+                          operator: Exists
+              podAntiAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  - labelSelector:
+                      matchExpressions:
+                        - key: ray.io/node-type
+                          operator: In
+                          values: ["head"]
+                    topologyKey: "kubernetes.io/hostname"
+            tolerations:
+              - key: nvidia.com/gpu
+                operator: Exists
+                effect: NoSchedule
+            volumes:
+              - name: ray-logs
+                emptyDir: {}
