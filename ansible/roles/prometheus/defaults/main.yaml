@@ -31,11 +31,9 @@ prometheus_vars:
         subdomain: grafana
         tls:
           secret_name: grafana-tls
-      secret:
-        name: grafana-secret
-      user:
-        name: "{{ prometheus.grafana.user.name }}"
-        password: "{{ prometheus.grafana.user.password }}"
+      admin:
+        name: "{{ prometheus.grafana.admin.name }}"
+        password: "{{ prometheus.grafana.admin.password }}"
     namespace: monitoring
     prometheus:
       ingress:

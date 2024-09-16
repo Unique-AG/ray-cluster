@@ -18,13 +18,15 @@ chart_roles:
   - basic_auth
   - prometheus
   - kured
-  - longhorn
+  - rook_ceph
   - harbor
+  - stackgres
   - nvidia_gpu_operator
   - ray
 
 apps:
   - llm-cluster
+  - document-chat
 
 k3s_vars:
   cluster_name: "ray-test-cluster"
@@ -53,10 +55,17 @@ harbor:
 
 prometheus:
   grafana:
-    user:
+    admin:
       name: admin
       password: password123!
 
 ray:
   huggingface:
     token: "{{ lookup('community.general.onepassword', 'RAY_CLUSTER_HUGGINGFACE_TOKEN', field='password') }}"
+
+document_chat:
+  chat:
+    postgres:
+      user: "{{ lookup('community.general.onepassword', 'RAY_CLUSTER_DOCUMENT_CHAT_SECRETS', field='chat_db_user') }}"
+      password: "{{ lookup('community.general.onepassword', 'RAY_CLUSTER_DOCUMENT_CHAT_SECRETS', field='chat_db_password') }}"
+    database: "{{ lookup('community.general.onepassword', 'RAY_CLUSTER_DOCUMENT_CHAT_SECRETS', field='chat_db_name') }}"

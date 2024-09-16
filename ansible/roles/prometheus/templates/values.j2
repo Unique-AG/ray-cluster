@@ -38,11 +38,9 @@ grafana:
       allow_embedding: true
     auth.anonymous:
       enabled: true
-      org_role: Admin
-  admin:
-    existingSecret: {{ prometheus_vars.kubernetes.grafana.secret.name }}
-    passwordKey: password
-    userKey: username
+      org_role: Viewer
+  adminUser: {{ prometheus_vars.kubernetes.grafana.admin.name }}
+  adminPassword: {{ prometheus_vars.kubernetes.grafana.admin.password }}
   ingress:
     enabled: true
     ingressClassName: traefik

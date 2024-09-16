@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: llm-cluster
+  name: document-chat
   namespace: argocd
 spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: ray
+    namespace: document-chat
   sources:
     - repoURL: https://github.com/Unique-AG/ray-cluster
-      path: 50-llm-cluster/argo
+      path: 10-document-chat/argo
       targetRevision: HEAD

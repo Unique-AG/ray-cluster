@@ -24,3 +24,13 @@
       loop: "{{ apps }}"
       loop_control:
         loop_var: item
+
+    - name: Create Secrets for Apps
+      kubernetes.core.k8s:
+        definition: "{{ lookup('ansible.builtin.template', item + '.secrets.j2', errors='ignore') | from_yaml }}"
+        kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+        wait: true
+      loop: "{{ apps }}"
+      loop_control:
+        loop_var: item
+      when: lookup('ansible.builtin.template', item + '.secrets.j2', errors='ignore') != ''

@@ -39,12 +39,6 @@
             kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
             wait: true
 
-        - name: Create grafana secret
-          kubernetes.core.k8s:
-            definition: "{{ lookup('ansible.builtin.template', 'grafana_secret.j2') | from_yaml }}"
-            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
-            wait: true
-
         - name: Install chart
           kubernetes.core.helm:
             chart_ref: "{{ prometheus_project_chart }}"
