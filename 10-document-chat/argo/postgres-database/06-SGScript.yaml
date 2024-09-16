@@ -1,0 +1,19 @@
+apiVersion: stackgres.io/v1
+kind: SGScript
+metadata:
+  namespace: document-chat
+  name: postgres-cluster-scripts
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  scripts:
+  - name: create-user
+    scriptFrom:
+      secretKeyRef:
+        name: chat-database-user-sql
+        key: create-user-sql
+  - name: create-database
+    scriptFrom:
+      secretKeyRef:
+        name: chat-database-user-sql
+        key: create-database-sql

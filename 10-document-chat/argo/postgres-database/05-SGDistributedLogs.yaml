@@ -1,0 +1,11 @@
+apiVersion: stackgres.io/v1
+kind: SGDistributedLogs
+metadata:
+  namespace: document-chat
+  name: postgres-distributed-logs
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  persistentVolume:
+    size: 50Gi
+    storageClass: ceph-block

@@ -1,0 +1,29 @@
+apiVersion: stackgres.io/v1
+kind: SGCluster
+metadata:
+  namespace: document-chat
+  name: postgres-cluster
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  postgres:
+    version: '16'
+  instances: 3
+  sgInstanceProfile: 'postgres-instance-profile'
+  pods:
+    persistentVolume:
+      size: '10Gi'
+      storageClass: ceph-block
+  configurations:
+    sgPostgresConfig: 'postgres-config'
+    sgPoolingConfig: 'postgres-pooling-config'
+    backups:
+    - sgObjectStorage: 'postgres-backup-config'
+      cronSchedule: '*/5 * * * *'
+      retention: 6
+  managedSql:
+    scripts:
+    - sgScript: postgres-cluster-scripts
+  distributedLogs:
+    sgDistributedLogs: 'postgres-distributed-logs'
+  prometheusAutobind: true

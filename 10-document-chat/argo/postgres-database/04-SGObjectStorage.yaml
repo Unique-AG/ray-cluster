@@ -1,0 +1,21 @@
+apiVersion: stackgres.io/v1beta1
+kind: SGObjectStorage
+metadata:
+  namespace: document-chat
+  name: postgres-backup-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  type: s3Compatible
+  s3Compatible:
+    endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
+    bucket: postgres-backup
+    enablePathStyleAddressing: true
+    awsCredentials:
+      secretKeySelectors:
+        accessKeyId:
+          key: AWS_ACCESS_KEY_ID
+          name: postgres-object-storage-bucket
+        secretAccessKey:
+          key: AWS_SECRET_ACCESS_KEY
+          name: postgres-object-storage-bucket

@@ -1,0 +1,10 @@
+apiVersion: stackgres.io/v1
+kind: SGInstanceProfile
+metadata:
+  namespace: document-chat
+  name: postgres-instance-profile
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  cpu: "2"
+  memory: "4Gi"
