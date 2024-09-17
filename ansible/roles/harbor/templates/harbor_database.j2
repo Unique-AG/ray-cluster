@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: harbor-database-user-sql
+  namespace: harbor
+type: Opaque
+stringData:
+  create-user-sql: "create user {{ harbor_vars.postgres.user }} password '{{ harbor_vars.postgres.password }}';"
+  create-database-sql: "create database {{ harbor_vars.postgres.coreDatabase }} owner {{ harbor_vars.postgres.user }};"
+
+---
+apiVersion: stackgres.io/v1
+kind: SGScript
+metadata:
+  namespace: harbor
+  name: harbor-database-scripts
+spec:
+  scripts:
+  - name: create-user
+    scriptFrom:
+      secretKeyRef:
+        name: harbor-database-user-sql
+        key: create-user-sql
+  - name: create-database
+    scriptFrom:
+      secretKeyRef:
+        name: harbor-database-user-sql
+        key: create-database-sql
+---
+apiVersion: stackgres.io/v1
+kind: SGCluster
+metadata:
+  namespace: harbor
+  name: harbor-database
+spec:
+  postgres:
+    version: '16.4'
+  instances: 1
+  pods:
+    persistentVolume: 
+      size: '5Gi'
+      storageClass: ceph-block
+  managedSql:
+    scripts:
+      - sgScript: harbor-database-scripts
+  prometheusAutobind: true

@@ -23,3 +23,7 @@ harbor_vars:
     requests:
       cpu: 1
       memory: 1Gi
+  postgres:
+    user: harbor
+    password: "{{ harbor.postgres.password }}"
+    coreDatabase: registry 

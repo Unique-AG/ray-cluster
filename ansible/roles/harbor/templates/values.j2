@@ -34,6 +34,8 @@ persistence:
     trivy:
       storageClass: {{ harbor_vars.persistence.storage_class }}
 
+enableMigrateHelmHook: true
+
 # Ceph Block Storage does not support read-write-many, so we need to use Recreate strategy
 updateStrategy:
   type: Recreate
@@ -50,5 +52,13 @@ resources:
     cpu: {{ harbor_vars.resources.requests.cpu }}
     memory: {{ harbor_vars.resources.requests.memory }}
 
-# TODO: Add external database for HA
+database:
+  type: external
+  external:
+    host: harbor-database.harbor
+    port: 5432
+    username: {{ harbor_vars.postgres.user }}
+    password: {{ harbor_vars.postgres.password }}
+    coreDatabase: {{ harbor_vars.postgres.coreDatabase }}
+
 # TODO: Add external redis for HA
