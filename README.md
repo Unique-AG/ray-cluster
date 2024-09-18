@@ -34,6 +34,15 @@ To run a specific task, use the `--tags` option:
  ansible-playbook playbooks/provisioning.yaml --extra-vars "@values.yaml" --tags "cluster,ssh,kubernetes,charts,apps"
  ```
 
+## Application Deployments
+
+All application resources are deployed via ArgoCD. The ansible role `apps` will create an ArgoCD application for each app defined in the `values.yaml` file.
+Some apps, that contain multiple services, use a ArgoCD ApplicationSet to deploy each service and required resource (e.g. the `10-document-chat` app).
+
+### Helm
+
+Individual services are packaged into Helm charts and deployed via ArgoCD. The Helm charts are stored in the `helm` directory and are packaged and pushed to the OCI registry with the `helm/publish.sh` script.
+
 ## License
 This repository is intended primarily for research, development, testing, and the collection and dissemination of knowledge.
 

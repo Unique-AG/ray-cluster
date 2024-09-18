@@ -7,10 +7,10 @@ spec:
   replicas: 1
   resources:
     requests:
-      cpu: 1000m
+      cpu: '1'
       memory: 2Gi
     limits:
-      cpu: 1000m
+      cpu: '1'
       memory: 2Gi
   persistence:
     storageClassName: ceph-block
