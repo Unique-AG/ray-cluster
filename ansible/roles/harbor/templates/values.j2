@@ -61,4 +61,7 @@ database:
     password: {{ harbor_vars.postgres.password }}
     coreDatabase: {{ harbor_vars.postgres.coreDatabase }}
 
-# TODO: Add external redis for HA
+redis:
+  type: external
+  external:
+    addr: harbor-redis-master.harbor:6379

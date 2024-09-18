@@ -1,0 +1,20 @@
+---
+- name: Set project chart fact
+  ansible.builtin.set_fact:
+    redis_project_chart: "{{ redis_vars.kubernetes.helm.repository.name }}/{{ redis_vars.kubernetes.helm.chart.name }}"
+  run_once: true
+
+- name: Set project url fact
+  ansible.builtin.set_fact:
+    redis_project_url: "https://github.com/{{ redis_vars.kubernetes.helm.repository.github }}/releases/tag/redis"
+  run_once: true
+
+- name: Set project tag url fact
+  ansible.builtin.set_fact:
+    redis_project_url_tag: "{{ redis_project_url }}/{{ redis_vars.kubernetes.helm.chart.version }}"
+  run_once: true
+
+- name: Set variables fact
+  ansible.builtin.set_fact:
+    redis_vars: "{{ redis_vars }}"
+  run_once: true

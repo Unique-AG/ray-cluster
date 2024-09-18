@@ -1,0 +1,15 @@
+spec:
+  name: document-chat-database
+  autoSync: true
+  source:
+    path: 10-document-chat/postgres-database
+    additionalValues:
+      directory:
+        recurse: true
+  additionalValues:
+    ignoreDifferences:
+      - group: stackgres.io
+        kind: SGCluster
+        jqPathExpressions:
+          - .spec.managedSql.scripts[].id
+          - '.spec.managedSql.scripts[] | select(.sgScript == "postgres-cluster-default")'

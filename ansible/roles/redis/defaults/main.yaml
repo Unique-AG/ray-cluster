@@ -1,0 +1,26 @@
+---
+redis_vars:
+  kubernetes:
+    helm:
+      chart:
+        name: redis
+        version: 20.1.3
+      repository:
+        name: bitnami
+        url: https://charts.bitnami.com/bitnami
+        github: bitnami/charts
+    namespace: redis
+    storage:
+      storage_class: ceph-block
+    architecture: standalone
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+    resources:
+      limits:
+        cpu: 1
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi

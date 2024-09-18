@@ -7,7 +7,7 @@
     - basic_auth
     - certmanager
     - k3s
-
+    - redis
 - name: Role Validation
   ansible.builtin.import_tasks:
     file: validation.yaml
@@ -32,7 +32,7 @@
       block:
         - name: Create harbor namespace
           kubernetes.core.k8s:
-            name: "harbor"
+            name: "{{ harbor_vars.kubernetes.namespace }}"
             api_version: v1
             kind: Namespace
             state: present
@@ -43,6 +43,22 @@
             kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
             definition: "{{ lookup('ansible.builtin.template', 'harbor_database.j2') }}"
             namespace: "{{ harbor_vars.kubernetes.namespace }}"
+
+        - name: Create harbor Redis instance
+          kubernetes.core.helm:
+            chart_ref: "{{ redis_project_chart }}"
+            chart_version: "{{ redis_vars.kubernetes.helm.chart.version }}"
+            create_namespace: false
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            name: "harbor-redis"
+            namespace: "{{ harbor_vars.kubernetes.namespace }}"
+            update_repo_cache: true
+            values: "{{ lookup('ansible.builtin.template', 'harbor_redis.j2') | from_yaml }}"
+            wait: true
+          register: result
+          delay: 1
+          retries: 3
+          until: result is not failed
 
     - name: Chart Setup
       run_once: true

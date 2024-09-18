@@ -1,28 +1,44 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: document-chat
   namespace: argocd
 spec:
-  project: default
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: document-chat
-  source:
-    repoURL: https://github.com/Unique-AG/ray-cluster
-    path: 10-document-chat/argo
-    targetRevision: HEAD
-    directory:
-      recurse: true
-  ignoreDifferences:
-    - group: stackgres.io
-      kind: SGCluster
-      jqPathExpressions:
-        - .spec.managedSql.scripts[].id
-        - '.spec.managedSql.scripts[] | select(.sgScript == "postgres-cluster-default")'
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+  - git:
+      repoURL: https://github.com/Unique-AG/ray-cluster
+      revision: HEAD
+      files:
+      - path: "10-document-chat/**/app.yaml"
+  template:
+    metadata:
+      name: '{% raw %}{{.spec.name}}{% endraw %}'
+      namespace: argocd
+    spec:
+      project: default
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: document-chat
+      source:
+        repoURL: https://github.com/Unique-AG/ray-cluster
+        targetRevision: HEAD
+        path: '{% raw %}{{.spec.source.path}}{% endraw %}'
+  templatePatch: |
+    spec:
+      source:
+        {% raw %}{{- if .spec.source.additionalValues }}
+        {{- .spec.source.additionalValues | toYaml | nindent 4 }}
+        {{- end }}
+      {{- if .spec.additionalValues }}
+      {{- .spec.additionalValues | toYaml | nindent 2 }}
+      {{- end }}
+      {{- if .spec.autoSync }}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+      {{- end }}{% endraw %}

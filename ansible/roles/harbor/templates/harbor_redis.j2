@@ -1,0 +1,30 @@
+global:
+  defaultStorageClass: {{ redis_vars.kubernetes.storage.storage_class }}
+
+architecture: {{ redis_vars.kubernetes.architecture }}
+
+auth:
+  enabled: false
+
+master:
+  resources:
+    limits:
+      cpu: {{ redis_vars.kubernetes.resources.limits.cpu }}
+      memory: {{ redis_vars.kubernetes.resources.limits.memory }}
+    requests:
+      cpu: {{ redis_vars.kubernetes.resources.requests.cpu }}
+      memory: {{ redis_vars.kubernetes.resources.requests.memory }}
+  persistence:
+    enabled: true
+    storageClass: {{ redis_vars.kubernetes.storage.storage_class }}
+    size: 8Gi
+
+metrics:
+  enabled: {{ redis_vars.kubernetes.metrics.enabled }}
+  service:
+    enabled: true
+  serviceMonitor:
+    enabled: {{ redis_vars.kubernetes.metrics.serviceMonitor.enabled }}
+    namespace: {{ harbor_vars.kubernetes.namespace }}
+    additionalLabels:
+      release: prometheus
