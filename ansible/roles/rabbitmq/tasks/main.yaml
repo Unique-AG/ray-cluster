@@ -44,3 +44,18 @@
           delay: 1
           retries: 3
           until: result is not failed
+
+        - name: Create pod monitor
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            namespace: "{{ rabbitmq_vars.kubernetes.namespace }}"
+            state: present
+            definition: "{{ lookup('ansible.builtin.template', 'podMonitor.j2') | from_yaml }}"
+
+        - name: Create Grafana dashboard ConfigMaps
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            namespace: "{{ rabbitmq_vars.kubernetes.namespace }}"
+            state: present
+            definition: "{{ lookup('file', 'defaults/dashboards/' + item) | from_yaml }}"
+          loop: "{{ lookup('fileglob', 'defaults/dashboards/*.yaml', wantlist=True) | map('basename') | list }}"

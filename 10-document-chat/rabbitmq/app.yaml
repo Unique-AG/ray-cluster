@@ -1,0 +1,9 @@
+spec:
+  name: document-chat-rabbitmq
+  autoSync: true
+  source:
+    repoURL: https://github.com/Unique-AG/ray-cluster
+    targetRevision: HEAD
+    path: 10-document-chat/rabbitmq
+    directory:
+      recurse: true
