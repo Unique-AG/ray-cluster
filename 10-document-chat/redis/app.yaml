@@ -1,0 +1,38 @@
+spec:
+  name: document-chat-redis
+  autoSync: true
+  source:
+    chart: redis
+    repoURL: registry-1.docker.io/bitnamicharts
+    targetRevision: 20.1.3
+    helm:
+      releaseName: document-chat-redis
+      valuesObject:
+        global:
+          defaultStorageClass: ceph-block
+        architecture: standalone
+        auth:
+          enabled: false
+        master:
+          resources:
+            limits:
+              cpu: 1
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+          persistence:
+            enabled: true
+            storageClass: ceph-block
+            size: 8Gi
+        metrics:
+          enabled: true
+          service:
+            enabled: true
+          serviceMonitor:
+            enabled: true
+            namespace: document-chat
+            additionalLabels:
+              release: prometheus
+              
+              

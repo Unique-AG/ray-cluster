@@ -36,6 +36,8 @@
       kubernetes.core.k8s:
         definition: "{{ lookup('ansible.builtin.template', item + '.argo-app.j2') | from_yaml }}"
         kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+        state: present
+        apply: true
         wait: true
       loop: "{{ apps }}"
       loop_control:

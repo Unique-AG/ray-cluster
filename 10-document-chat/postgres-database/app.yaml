@@ -2,10 +2,11 @@ spec:
   name: document-chat-database
   autoSync: true
   source:
+    repoURL: https://github.com/Unique-AG/ray-cluster
+    targetRevision: HEAD
     path: 10-document-chat/postgres-database
-    additionalValues:
-      directory:
-        recurse: true
+    directory:
+      recurse: true
   additionalValues:
     ignoreDifferences:
       - group: stackgres.io

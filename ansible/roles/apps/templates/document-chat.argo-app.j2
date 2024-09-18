@@ -21,17 +21,11 @@ spec:
       destination:
         server: https://kubernetes.default.svc
         namespace: document-chat
-      source:
-        repoURL: https://github.com/Unique-AG/ray-cluster
-        targetRevision: HEAD
-        path: '{% raw %}{{.spec.source.path}}{% endraw %}'
   templatePatch: |
     spec:
       source:
-        {% raw %}{{- if .spec.source.additionalValues }}
-        {{- .spec.source.additionalValues | toYaml | nindent 4 }}
-        {{- end }}
-      {{- if .spec.additionalValues }}
+        {% raw %}{{- .spec.source | toYaml | nindent 4 }}
+      {{- if hasKey .spec "additionalValues" }}
       {{- .spec.additionalValues | toYaml | nindent 2 }}
       {{- end }}
       {{- if .spec.autoSync }}
