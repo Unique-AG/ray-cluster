@@ -1,0 +1,20 @@
+---
+- name: Set project chart fact
+  ansible.builtin.set_fact:
+    rabbitmq_project_chart: "{{ rabbitmq_vars.kubernetes.helm.repository.name }}/{{ rabbitmq_vars.kubernetes.helm.chart.name }}"
+  run_once: true
+
+- name: Set project url fact
+  ansible.builtin.set_fact:
+    rabbitmq_project_url: "https://github.com/{{ rabbitmq_vars.kubernetes.helm.repository.github }}/releases/tag/rabbitmq-cluster-operator"
+  run_once: true
+
+- name: Set project tag url fact
+  ansible.builtin.set_fact:
+    rabbitmq_project_url_tag: "{{ rabbitmq_project_url }}/{{ rabbitmq_vars.kubernetes.helm.chart.version }}"
+  run_once: true
+
+- name: Set variables fact
+  ansible.builtin.set_fact:
+    rabbitmq_vars: "{{ rabbitmq_vars }}"
+  run_once: true

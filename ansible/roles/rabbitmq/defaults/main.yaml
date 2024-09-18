@@ -1,0 +1,14 @@
+---
+rabbitmq_vars:
+  kubernetes:
+    helm:
+      chart:
+        name: rabbitmq-cluster-operator
+        version: 4.3.22
+      repository:
+        name: bitnami
+        url: https://charts.bitnami.com/bitnami
+        github: bitnami/charts
+    namespace: rabbitmq
+    storage:
+      class: ceph-block

@@ -18,6 +18,7 @@ chart_roles:
   - rook_ceph
   - stackgres
   - redis
+  - rabbitmq
   - harbor
   - nvidia_gpu_operator
   - ray

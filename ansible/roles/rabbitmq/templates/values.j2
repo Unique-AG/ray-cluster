@@ -1,0 +1,32 @@
+global:
+  defaultStorageClass: "{{ rabbitmq_vars.kubernetes.storage.class }}"
+clusterOperator:
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: "{{ rabbitmq_vars.kubernetes.namespace }}"
+      additionalLabels:
+        release: prometheus
+msgTopologyOperator:
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: "{{ rabbitmq_vars.kubernetes.namespace }}"
+      additionalLabels:
+        release: prometheus
