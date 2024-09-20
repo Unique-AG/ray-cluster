@@ -18,3 +18,8 @@
   ansible.builtin.set_fact:
     rook_ceph_project_url_tag: "{{ rook_ceph_project_url }}/{{ rook_ceph_vars.kubernetes.helm.chart.version }}"
   run_once: true
+
+- name: Set variables fact
+  ansible.builtin.set_fact:
+    rook_ceph_vars: "{{ rook_ceph_vars }}"
+  run_once: true

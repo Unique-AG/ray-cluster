@@ -1,0 +1,65 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-loki-s3-user-job
+  namespace: rook-ceph
+  labels:
+    app: ceph-toolbox-job
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: config-init
+          image: docker.io/rook/ceph:v1.15.2
+          command: ["/usr/local/bin/toolbox.sh"]
+          args: ["--skip-watch"]
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ROOK_CEPH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rook-ceph-mon
+                  key: ceph-username
+          volumeMounts:
+            - mountPath: /etc/ceph
+              name: ceph-config
+            - name: mon-endpoint-volume
+              mountPath: /etc/rook
+            - name: ceph-admin-secret
+              mountPath: /var/lib/rook-ceph-mon
+      containers:
+        - name: script
+          image: docker.io/rook/ceph:v1.15.2
+          volumeMounts:
+            - mountPath: /etc/ceph
+              name: ceph-config
+              readOnly: true
+          command:
+            - "bash"
+            - "-c"
+            - |
+              if ! radosgw-admin user info --uid=loki-s3-user &>/dev/null; then
+                radosgw-admin user create --uid=loki-s3-user --display-name="Loki S3 User" --access-key="{{ prometheus.loki.s3.access_key }}" --secret="{{ prometheus.loki.s3.secret_key }}"
+              else
+                echo "User loki-s3-user already exists"
+              fi
+              for bucket in loki-chunks loki-ruler loki-admin; do
+                radosgw-admin bucket link --uid=loki-s3-user --bucket=$bucket
+              done
+      volumes:
+        - name: ceph-admin-secret
+          secret:
+            secretName: rook-ceph-mon
+            optional: false
+            items:
+              - key: ceph-secret
+                path: secret.keyring
+        - name: mon-endpoint-volume
+          configMap:
+            name: rook-ceph-mon-endpoints
+            items:
+              - key: data
+                path: mon-endpoints
+        - name: ceph-config
+          emptyDir: {}
+      restartPolicy: Never
