@@ -8,6 +8,7 @@ spec:
     helm:
       releaseName: service-debug
       valuesObject:
+        nameOverride: service-debug
         image:
           repository: harbor.konsti.org/library/debug
           tag: 2024-09-12-56806
