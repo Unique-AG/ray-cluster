@@ -1,0 +1,5 @@
+---
+config:
+  logFormat: json
+  clients:
+    - url: "http://{{ loki_vars.kubernetes.helm.chart.name }}-gateway.{{ loki_vars.kubernetes.namespace }}.svc/loki/api/v1/push"

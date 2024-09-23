@@ -8,6 +8,11 @@
     alloy_project_chart: '{{ loki_vars.kubernetes.helm.repository.org }}/{{ loki_vars.alloy.helm.chart.name }}'
   run_once: true
 
+- name: Set promtail project chart fact
+  ansible.builtin.set_fact:
+    promtail_project_chart: '{{ loki_vars.kubernetes.helm.repository.org }}/{{ loki_vars.promtail.helm.chart.name }}'
+  run_once: true
+
 - name: Set project url fact
   ansible.builtin.set_fact:
     loki_project_url: https://github.com/{{ loki_vars.kubernetes.helm.repository.org }}/{{ loki_vars.kubernetes.helm.repository.name }}/releases/tag

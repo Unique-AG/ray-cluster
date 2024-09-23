@@ -53,3 +53,10 @@
     insertafter: EOF
     line: "auth,authpriv.*         /var/log/sudo.log"
   notify: Restart rsyslog
+
+- name: Set fs.inotify.max_user_instances to 1024
+  ansible.builtin.sysctl:
+    name: fs.inotify.max_user_instances
+    value: 1024
+    state: present
+    reload: yes

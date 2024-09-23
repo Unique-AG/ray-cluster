@@ -107,19 +107,57 @@
                       url: http://{{ loki_vars.kubernetes.helm.chart.name }}-gateway.{{ loki_vars.kubernetes.namespace }}.svc:80
                       isDefault: false
 
-    - name: Alloy Chart Setup
+        - name: Add Grafana dashboard for Loki
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            state: present
+            definition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: loki-grafana-dashboard
+                namespace: "{{ prometheus_vars.kubernetes.namespace }}"
+                labels:
+                  grafana_dashboard: "1"
+              data:
+                loki-dashboard.json: "{{ lookup('file', 'defaults/loki_dashboard.json') | from_json | to_nice_json }}"
+
+    # Allow is the preferred way to ship logs to Loki, but it has issues in the cluster with too many open file watchers.
+    # We use Promtail as an alternative for now.
+    #
+    # - name: Alloy Chart Setup
+    #   run_once: true
+    #   block:
+    #     - name: Install alloy chart
+    #       kubernetes.core.helm:
+    #         chart_ref: "{{ alloy_project_chart }}"
+    #         chart_version: "{{ loki_vars.alloy.helm.chart.version }}"
+    #         create_namespace: true
+    #         kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+    #         name: "{{ loki_vars.alloy.helm.chart.name }}"
+    #         namespace: "{{ loki_vars.kubernetes.namespace }}"
+    #         update_repo_cache: true
+    #         values: "{{ lookup('ansible.builtin.template', 'alloy_values.j2') | from_yaml }}"
+    #         wait: true
+    #       register: result
+    #       delay: 1
+    #       retries: 3
+    #       until: result is not failed
+
+    - name: Promtail Chart Setup
       run_once: true
       block:
-        - name: Install alloy chart
+
+        - name: Install promtail chart
           kubernetes.core.helm:
-            chart_ref: "{{ alloy_project_chart }}"
-            chart_version: "{{ loki_vars.alloy.helm.chart.version }}"
+            chart_ref: "{{ promtail_project_chart }}"
+            chart_version: "{{ loki_vars.promtail.helm.chart.version }}"
             create_namespace: true
             kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
-            name: "{{ loki_vars.alloy.helm.chart.name }}"
+            name: "{{ loki_vars.promtail.helm.chart.name }}"
             namespace: "{{ loki_vars.kubernetes.namespace }}"
             update_repo_cache: true
-            values: "{{ lookup('ansible.builtin.template', 'alloy_values.j2') | from_yaml }}"
+            values: "{{ lookup('ansible.builtin.template', 'promtail_values.j2') | from_yaml }}"
             wait: true
           register: result
           delay: 1

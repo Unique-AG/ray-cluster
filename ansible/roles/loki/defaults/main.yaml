@@ -15,3 +15,8 @@ loki_vars:
       chart:
         name: alloy
         version: 0.7.0
+  promtail:
+    helm:
+      chart:
+        name: promtail
+        version: 6.16.0
