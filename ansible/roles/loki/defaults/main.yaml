@@ -10,3 +10,8 @@ loki_vars:
         org: grafana
         name: helm-charts
         url: https://grafana.github.io
+  alloy:
+    helm:
+      chart:
+        name: alloy
+        version: 0.7.0
