@@ -4,7 +4,13 @@ cluster:
 
   # The main domain for the cluster. All services will be available under this domain.
   domain: example.com
-  
+
+  # Our Kong gateway operator only allows a single gateway per cluster. All subdomains need to be configured here
+  # so the certmanager can issue certificates for them.
+  subdomains:
+    argocd: argocd
+    harbor: harbor
+
   management_user_ssh_keys:
     - "ssh-ed25519 <ssh-key> example-description"
 
@@ -29,6 +35,10 @@ apps:
   - document-chat
 
 ## Chart specific values
+certmanager:
+  cluster_issuer:
+    email: email@example.com
+
 argocd:
   server:
     admin:

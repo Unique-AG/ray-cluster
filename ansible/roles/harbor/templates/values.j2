@@ -8,12 +8,9 @@ expose:
   ingress:
     hosts:
       core: {{ harbor_vars.ingress.hostname }}
-    className: traefik
+    className: kong
     annotations:
       cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
-      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-      traefik.ingress.kubernetes.io/router.middlewares: >-
-        {{ certmanager_vars.kubernetes.namespace }}-redirect-https@kubernetescrd
 
 externalURL: https://{{ harbor_vars.ingress.hostname }}
 

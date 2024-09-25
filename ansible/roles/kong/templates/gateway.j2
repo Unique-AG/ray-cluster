@@ -1,0 +1,29 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ kong_vars.kubernetes.gateway.name }}
+  namespace: {{ kong_vars.kubernetes.namespace }}
+  annotations:
+    cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
+spec:
+  gatewayClassName: kong
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: All
+    {% for subdomain in cluster.subdomains.keys() %}
+- name: https-{{ subdomain | replace('.', '-') }}
+      hostname: "{{ subdomain }}.{{ cluster.domain }}"
+      protocol: HTTPS
+      port: 443
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: {{ subdomain | replace('.', '-') }}-gateway-tls
+    {% endfor %}

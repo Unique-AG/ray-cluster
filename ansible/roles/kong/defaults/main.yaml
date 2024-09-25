@@ -1,0 +1,18 @@
+---
+kong_vars:
+  kubernetes:
+    namespace: kong-system
+    helm:
+      repository:
+        org: kong
+        url: https://charts.konghq.com
+        github: Kong/charts
+    ingress_controller:
+      helm:
+        release:
+          name: kong
+        chart:
+          name: ingress
+          version: 0.14.1
+    gateway:
+      name: kong

@@ -54,10 +54,3 @@
             - production
           loop_control:
             loop_var: issuer_type
-
-        - name: Create redirect middleware
-          kubernetes.core.k8s:
-            definition: "{{ lookup('ansible.builtin.template', 'redirect_middleware.j2') | from_yaml }}"
-            kubeconfig: '{{ k3s_vars.directory.config }}/k3s.yaml'
-            wait: true
-

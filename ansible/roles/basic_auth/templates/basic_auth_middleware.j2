@@ -1,8 +1,0 @@
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: basic-auth
-  namespace: {{ basic_auth_vars.kubernetes.namespace }}
-spec:
-  basicAuth:
-    secret: {{ basic_auth_vars.secret.name }}

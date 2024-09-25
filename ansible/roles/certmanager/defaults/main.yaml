@@ -33,11 +33,11 @@ certmanager_vars:
       cluster_issuer:
         staging:
           name: letsencrypt-staging
-          email: konstantin@unique.ch
+          email: "{{ certmanager.cluster_issuer.email }}"
           server: https://acme-staging-v02.api.letsencrypt.org/directory
         production:
           name: letsencrypt-production
-          email: konstantin@unique.ch
+          email: "{{ certmanager.cluster_issuer.email }}"
           server: https://acme-v02.api.letsencrypt.org/directory
     webhook:
       resources:

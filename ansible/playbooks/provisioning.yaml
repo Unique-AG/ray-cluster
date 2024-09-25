@@ -34,6 +34,14 @@
     - "{{ groups['agent'] | length }}"
   tags: kubernetes
 
+- name: Kong Provisioning
+  hosts: server
+  become: true
+  gather_facts: true
+  roles:
+    - kong
+  tags: kong
+
 - name: Charts Provisioning
   hosts: server
   become: true

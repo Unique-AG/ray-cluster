@@ -1,0 +1,18 @@
+- name: Set kong ingress operator project chart fact
+  ansible.builtin.set_fact:
+    kong_ingress_controller_project_chart: '{{ kong_vars.kubernetes.helm.repository.org }}/{{ kong_vars.kubernetes.ingress_controller.helm.chart.name }}'
+  run_once: true
+
+- name: Set project url fact
+  ansible.builtin.set_fact:
+    kong_project_url: https://github.com/{{ kong_vars.kubernetes.helm.repository.github }}
+  run_once: true
+
+- name: Set project tag url fact
+  ansible.builtin.set_fact:
+    kong_ingress_controller_project_url_tag: '{{ kong_project_url }}/releases/tag/{{ kong_vars.kubernetes.ingress_controller.helm.chart.name }}-{{ kong_vars.kubernetes.ingress_controller.helm.chart.version }}'
+  run_once: true
+
+- name: Set variables fact
+  ansible.builtin.set_fact:
+    kong_vars: '{{ kong_vars }}'

@@ -1,0 +1,10 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongConsumer
+metadata:
+  name: {{ basic_auth_vars.consumer.name }}
+  namespace: {{ basic_auth_vars.kubernetes.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: "kong"
+username: {{ basic_auth_vars.user.name }}
+credentials:
+  - basic-auth

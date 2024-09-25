@@ -71,11 +71,8 @@ server:
       memory: {{ argocd_vars.kubernetes.server.resources.requests.memory }}
   ingress:
     enabled: true
-    ingressClassName: traefik
+    ingressClassName: kong
     annotations:
       cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
-      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-      traefik.ingress.kubernetes.io/router.middlewares: >-
-        {{ certmanager_vars.kubernetes.namespace }}-redirect-https@kubernetescrd
     hostname: {{ hostname }}
     tls: true

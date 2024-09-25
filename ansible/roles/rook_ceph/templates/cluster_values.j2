@@ -16,10 +16,7 @@ cephClusterSpec:
 ingress:
   dashboard:
     annotations:
-      kubernetes.io/ingress.class: traefik
-      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-      traefik.ingress.kubernetes.io/router.middlewares: >-
-        kube-system-redirect-https@kubernetescrd
+      kubernetes.io/ingress.class: kong
       cert-manager.io/cluster-issuer: letsencrypt-production
     host:
       name: {{ rook_ceph_vars.kubernetes.ingress.subdomain }}.{{ domain }}
@@ -27,15 +24,12 @@ ingress:
       - hosts:
           - {{ rook_ceph_vars.kubernetes.ingress.subdomain }}.{{ domain }}
         secretName: rook-ceph-tls
-    ingressClassName: traefik
+    ingressClassName: kong
 cephObjectStorage:
   ingress:
     enabled: {{ rook_ceph_vars.kubernetes.object_storage.ingress.enabled }}
     annotations:
-      kubernetes.io/ingress.class: traefik
-      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-      traefik.ingress.kubernetes.io/router.middlewares: >-
-        kube-system-redirect-https@kubernetescrd
+      kubernetes.io/ingress.class: kong
       cert-manager.io/cluster-issuer: letsencrypt-production
     host:
       name: {{ rook_ceph_vars.kubernetes.object_storage.ingress.subdomain }}.{{ domain }}
@@ -43,4 +37,4 @@ cephObjectStorage:
       - hosts:
           - {{ rook_ceph_vars.kubernetes.object_storage.ingress.subdomain }}.{{ domain }}
         secretName: rook-ceph-tls
-    ingressClassName: traefik
+    ingressClassName: kong

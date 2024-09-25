@@ -4,10 +4,7 @@ metadata:
   name: {{ stackgres_vars.kubernetes.helm.chart.name }}-ingress
   namespace: {{ stackgres_vars.kubernetes.namespace }}
   annotations:
-    kubernetes.io/ingress.class: traefik
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    traefik.ingress.kubernetes.io/router.middlewares: >-
-      kube-system-redirect-https@kubernetescrd
+    kubernetes.io/ingress.class: kong
     cert-manager.io/cluster-issuer: letsencrypt-production
 spec:
   tls:

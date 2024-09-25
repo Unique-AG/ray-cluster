@@ -19,13 +19,10 @@ alertmanager:
               storage: {{ prometheus_vars.kubernetes.alertmanager.storage }}
   ingress:
     enabled: true
-    ingressClassName: traefik
+    ingressClassName: kong
     annotations:
       cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
-      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-      traefik.ingress.kubernetes.io/router.middlewares: >-
-        {{ certmanager_vars.kubernetes.namespace }}-redirect-https@kubernetescrd,
-        {{ basic_auth_vars.kubernetes.namespace }}-basic-auth@kubernetescrd
+      konghq.com/plugins: "{{ basic_auth_vars.plugin.name }}"
     hosts:
       - {{ prometheus_vars.kubernetes.alertmanager.ingress.subdomain }}.{{ domain }}
     tls:
@@ -43,12 +40,9 @@ grafana:
   adminPassword: {{ prometheus_vars.kubernetes.grafana.admin.password }}
   ingress:
     enabled: true
-    ingressClassName: traefik
+    ingressClassName: kong
     annotations:
       cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
-      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-      traefik.ingress.kubernetes.io/router.middlewares: >-
-        {{ certmanager_vars.kubernetes.namespace }}-redirect-https@kubernetescrd
     hosts:
       - {{ prometheus_vars.kubernetes.grafana.ingress.subdomain }}.{{ domain }}
     tls:
@@ -70,13 +64,10 @@ kubeScheduler:
 prometheus:
   ingress:
     enabled: true
-    ingressClassName: traefik
+    ingressClassName: kong
     annotations:
       cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
-      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-      traefik.ingress.kubernetes.io/router.middlewares: >-
-        {{ certmanager_vars.kubernetes.namespace }}-redirect-https@kubernetescrd,
-        {{ basic_auth_vars.kubernetes.namespace }}-basic-auth@kubernetescrd
+      konghq.com/plugins: "{{ basic_auth_vars.plugin.name }}"
     hosts:
       - {{ prometheus_vars.kubernetes.prometheus.ingress.subdomain }}.{{ domain }}
     tls:

@@ -9,6 +9,6 @@ spec:
     privateKeySecretRef:
       name: {{ certmanager_vars.kubernetes.tls.cluster_issuer[issuer_type].name }}
     solvers:
-    - http01:
-        ingress:
-          class: traefik
+      - http01:
+          ingress:
+            ingressClassName: kong

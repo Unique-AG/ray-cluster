@@ -2,8 +2,12 @@
 basic_auth_vars:
   secret:
     name: basic-auth
+  consumer:
+    name: basic-auth
+  plugin:
+    name: basic-auth
   user:
     name: "{{ basic_auth.user.name }}"
     password: "{{ basic_auth.user.password }}"
   kubernetes:
-    namespace: kube-system
+    namespace: kong-system

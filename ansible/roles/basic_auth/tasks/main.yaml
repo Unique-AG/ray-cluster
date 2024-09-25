@@ -37,8 +37,14 @@
         kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
         wait: true
 
-    - name: Create basic auth middleware
+    - name: Create basic auth consumer
       kubernetes.core.k8s:
-        definition: "{{ lookup('ansible.builtin.template', 'basic_auth_middleware.j2') | from_yaml }}"
+        definition: "{{ lookup('ansible.builtin.template', 'basic_auth_consumer.j2') | from_yaml }}"
+        kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+        wait: true
+
+    - name: Create basic auth plugin
+      kubernetes.core.k8s:
+        definition: "{{ lookup('ansible.builtin.template', 'basic_auth_plugin.j2') | from_yaml }}"
         kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
         wait: true
