@@ -1,0 +1,8 @@
+apiVersion: objectbucket.io/v1alpha1
+kind: ObjectBucketClaim
+metadata:
+  name: zitadel-object-storage-bucket
+  namespace: {{ zitadel_vars.kubernetes.namespace }}
+spec:
+  bucketName: zitadel-db-backups
+  storageClassName: ceph-bucket

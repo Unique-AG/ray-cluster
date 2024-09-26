@@ -87,7 +87,7 @@ argocd_vars:
         limits:
           memory: 2Gi
         requests:
-          cpu: 4
+          cpu: 1
           memory: 2Gi
       user:
         name: "{{ argocd.server.user.name }}"

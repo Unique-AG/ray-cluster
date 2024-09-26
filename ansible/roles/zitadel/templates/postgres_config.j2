@@ -1,0 +1,73 @@
+---
+apiVersion: stackgres.io/v1
+kind: SGInstanceProfile
+metadata:
+  namespace: {{ zitadel_vars.kubernetes.namespace }}
+  name: zitadel-db-instance-profile
+spec:
+  cpu: "2"
+  memory: "4Gi"
+---
+apiVersion: stackgres.io/v1
+kind: SGPostgresConfig
+metadata:
+  namespace: {{ zitadel_vars.kubernetes.namespace }}
+  name: zitadel-db-config
+spec:
+  postgresVersion: "16"
+  postgresql.conf:
+    shared_buffers: '512MB'
+    random_page_cost: '1.5'
+    password_encryption: 'scram-sha-256'
+    log_checkpoints: 'on'
+---
+apiVersion: stackgres.io/v1
+kind: SGPoolingConfig
+metadata:
+  namespace: {{ zitadel_vars.kubernetes.namespace }}
+  name: zitadel-db-pooling-config
+spec:
+  pgBouncer:
+    pgbouncer.ini:
+      pgbouncer:
+        pool_mode: session # This is important for ZITADEL as it uses prepared statements and they don't work with transaction pooling
+        max_client_conn: '1000'
+        default_pool_size: '80'
+---
+apiVersion: stackgres.io/v1beta1
+kind: SGObjectStorage
+metadata:
+  namespace: {{ zitadel_vars.kubernetes.namespace }}
+  name: zitadel-db-backup-config
+spec:
+  type: s3Compatible
+  s3Compatible:
+    endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
+    bucket: zitadel-db-backups
+    enablePathStyleAddressing: true
+    awsCredentials:
+      secretKeySelectors:
+        accessKeyId:
+          key: AWS_ACCESS_KEY_ID
+          name: zitadel-object-storage-bucket
+        secretAccessKey:
+          key: AWS_SECRET_ACCESS_KEY
+          name: zitadel-object-storage-bucket
+---
+apiVersion: stackgres.io/v1
+kind: SGScript
+metadata:
+  namespace: {{ zitadel_vars.kubernetes.namespace }}
+  name: zitadel-db-scripts
+spec:
+  scripts:
+  - name: create-user
+    scriptFrom:
+      secretKeyRef:
+        name: zitadel-db-user-sql
+        key: create-user-sql
+  - name: create-database
+    scriptFrom:
+      secretKeyRef:
+        name: zitadel-db-user-sql
+        key: create-database-sql

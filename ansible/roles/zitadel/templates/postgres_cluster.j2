@@ -1,0 +1,25 @@
+apiVersion: stackgres.io/v1
+kind: SGCluster
+metadata:
+  namespace: {{ zitadel_vars.kubernetes.namespace }}
+  name: {{ zitadel_vars.postgres_cluster.name }}
+spec:
+  postgres:
+    version: "16.4"
+  instances: 3
+  sgInstanceProfile: "zitadel-db-instance-profile"
+  pods:
+    persistentVolume:
+      size: "10Gi"
+      storageClass: ceph-block
+  configurations:
+    sgPostgresConfig: "zitadel-db-config"
+    sgPoolingConfig: "zitadel-db-pooling-config"
+    backups:
+      - sgObjectStorage: "zitadel-db-backup-config"
+        cronSchedule: "*/5 * * * *"
+        retention: 6
+  managedSql:
+    scripts:
+      - sgScript: zitadel-db-cluster-scripts
+  prometheusAutobind: true

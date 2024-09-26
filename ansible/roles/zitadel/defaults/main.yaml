@@ -1,0 +1,21 @@
+---
+zitadel_vars:
+  image:
+    tag: v2.62.2
+  kubernetes:
+    namespace: zitadel
+    helm:
+      chart:
+        name: zitadel
+        version: 8.5.0
+      repository:
+        org: zitadel
+        url: https://charts.zitadel.com
+        github: zitadel/zitadel-charts
+    ingress:
+      subdomain: id
+  postgres_cluster:
+    name: zitadel-db-cluster
+    user: zitadel
+    database: zitadel
+        

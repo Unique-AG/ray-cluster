@@ -1,0 +1,180 @@
+---
+- name: Import facts
+  ansible.builtin.include_role:
+    name: "{{ item }}"
+    tasks_from: facts
+  loop:
+    - k3s
+    - certmanager
+
+- name: Role Validation
+  ansible.builtin.import_tasks:
+    file: validation.yaml
+
+- name: Role Provisioning
+  when: ansible_host in k3s_server_hosts
+  block:
+    - name: Validate service state
+      ansible.builtin.wait_for:
+        port: "{{ k3s_vars.server.api.port }}"
+        state: started
+        timeout: 30
+      any_errors_fatal: true
+
+    - name: Add repository
+      kubernetes.core.helm_repository:
+        name: "{{ zitadel_vars.kubernetes.helm.repository.org }}"
+        repo_url: "{{ zitadel_vars.kubernetes.helm.repository.url }}"
+
+    - name: Create Zitadel resources
+      run_once: true
+      block:
+        - name: Create Zitadel namespace
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            definition:
+              apiVersion: v1
+              kind: Namespace
+              metadata:
+                name: "{{ zitadel_vars.kubernetes.namespace }}"
+            wait: true
+
+        - name: Check if db secret exists
+          kubernetes.core.k8s_info:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            kind: Secret
+            name: zitadel-db-user-sql
+            namespace: "{{ zitadel_vars.kubernetes.namespace }}"
+          register: db_secret_check
+
+        - name: Generate Zitadel Postgres password
+          ansible.builtin.command: openssl rand -base64 20
+          register: zitadel_postgres_password_result
+          changed_when: false
+          when: db_secret_check.resources | length == 0
+
+        - name: Set Zitadel Postgres password fact
+          ansible.builtin.set_fact:
+            zitadel_postgres_password: "{{ zitadel_postgres_password_result.stdout }}"
+          when: db_secret_check.resources | length == 0
+        
+        - name: Create ceph bucket for Zitadel DB backups
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            definition: "{{ lookup('ansible.builtin.template', 'ceph_bucket.j2') }}"
+            wait: true
+
+        - name: Create db secret
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            definition: "{{ lookup('ansible.builtin.template', 'db_secret.j2') }}"
+            wait: true
+          when: db_secret_check.resources | length == 0
+
+        - name: Create postgres config
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            definition: "{{ lookup('ansible.builtin.template', 'postgres_config.j2') }}"
+            wait: true
+
+        - name: Create postgres cluster
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            definition: "{{ lookup('ansible.builtin.template', 'postgres_cluster.j2') }}"
+            wait: true
+
+        - name: Get user secret
+          kubernetes.core.k8s_info:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            api_version: v1
+            kind: Secret
+            name: zitadel-db-user-sql
+            namespace: "{{ zitadel_vars.kubernetes.namespace }}"
+          register: user_secret
+
+        - name: Get zitadel-db-cluster secret
+          kubernetes.core.k8s_info:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            api_version: v1
+            kind: Secret
+            name: "{{ zitadel_vars.postgres_cluster.name }}"
+            namespace: "{{ zitadel_vars.kubernetes.namespace }}"
+          register: zitadel_db_secret
+        
+        - name: Set zitadel database credentials facts
+          ansible.builtin.set_fact:
+            zitadel_db_user_username: "{{ user_secret.resources[0].data['zitadel-user'] | b64decode }}"
+            zitadel_db_user_password: "{{ user_secret.resources[0].data['zitadel-user-password'] | b64decode }}"
+            zitadel_db_superuser_username: "{{ zitadel_db_secret.resources[0].data['superuser-username'] | b64decode }}"
+            zitadel_db_superuser_password: "{{ zitadel_db_secret.resources[0].data['superuser-password'] | b64decode }}"
+
+    - name: Zitadel Chart Setup
+      run_once: true
+      block:
+        - name: Check if Zitadel masterkey secret exists
+          kubernetes.core.k8s_info:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            kind: Secret
+            name: zitadel-masterkey
+            namespace: "{{ zitadel_vars.kubernetes.namespace }}"
+          register: masterkey_secret
+
+        - name: Generate Zitadel masterkey
+          ansible.builtin.shell: tr -dc A-Za-z0-9 < /dev/urandom | head -c 32
+          register: zitadel_masterkey_result
+          changed_when: false
+          when: masterkey_secret.resources | length == 0
+
+        - name: Create Zitadel masterkey secret
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            definition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: zitadel-masterkey
+                namespace: "{{ zitadel_vars.kubernetes.namespace }}"
+              type: Opaque
+              data:
+                masterkey: "{{ zitadel_masterkey_result.stdout | b64encode }}"
+          when: masterkey_secret.resources | length == 0
+
+        - name: Retrieve Zitadel masterkey from secret
+          kubernetes.core.k8s_info:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            kind: Secret
+            name: zitadel-masterkey
+            namespace: "{{ zitadel_vars.kubernetes.namespace }}"
+          register: retrieved_masterkey_secret
+
+        - name: Set Zitadel masterkey fact
+          ansible.builtin.set_fact:
+            zitadel_masterkey: "{{ retrieved_masterkey_secret.resources[0].data.masterkey | b64decode }}"
+
+        - name: Wait for zitadel-db-cluster StatefulSet to have correct number of replicas
+          kubernetes.core.k8s_info:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            api_version: apps/v1
+            kind: StatefulSet
+            name: "{{ zitadel_vars.postgres_cluster.name }}"
+            namespace: "{{ zitadel_vars.kubernetes.namespace }}"
+          register: zitadel_db_cluster_status
+          until: zitadel_db_cluster_status.resources[0].status.replicas is defined and zitadel_db_cluster_status.resources[0].status.replicas == zitadel_db_cluster_status.resources[0].spec.replicas
+          retries: 30
+          delay: 10
+
+        - name: Install zitadel
+          kubernetes.core.helm:
+            chart_ref: "{{ zitadel_project_chart }}"
+            chart_version: "{{ zitadel_vars.kubernetes.helm.chart.version }}"
+            create_namespace: true
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            name: "{{ zitadel_vars.kubernetes.helm.chart.name }}"
+            namespace: "{{ zitadel_vars.kubernetes.namespace }}"
+            update_repo_cache: true
+            values: "{{ lookup('ansible.builtin.template', 'values.j2') | from_yaml }}"
+            wait: true
+          register: result
+          delay: 1
+          retries: 3
+          until: result is not failed
