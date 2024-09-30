@@ -40,11 +40,8 @@ service:
 httproute:
   enabled: false
   annotations: {}
-  parentRefs:
-    - name: kong
-      namespace: kong-system
-      group: gateway.networking.k8s.io
-      kind: Gateway
+  gatewayName: kong
+  gatewayNamespace: kong-system
   hostnames: []
   rules:
     - matches:

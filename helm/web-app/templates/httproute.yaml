@@ -23,8 +23,8 @@ spec:
   {{- end }}
   rules:
   {{- range .Values.httproute.rules }}
-  - matches:
-    {{- toYaml .matches | nindent 4 }}
+  - {{ toYaml (omit . "backendRefs" "skipBackendRefs") | nindent 4 }}
+    {{- if not .skipBackendRefs }}
     backendRefs:
     {{- if .backendRefs }}
     {{- toYaml .backendRefs | nindent 4 }}
@@ -32,6 +32,7 @@ spec:
     - name: {{ $fullName }}
       port: {{ $svcPort }}
       kind: Service
+    {{- end }}
     {{- end }}
   {{- end }}
 ---
@@ -48,8 +49,8 @@ metadata:
   {{- end }}
 spec:
   parentRefs:
-  - name: {{ .Values.httproute.gatewayName }}
-    namespace: {{ .Values.httproute.gatewayNamespace }}
+  - name: {{ $.Values.httproute.gatewayName }}
+    namespace: {{ $.Values.httproute.gatewayNamespace }}
     group: gateway.networking.k8s.io
     kind: Gateway
   hostnames:
