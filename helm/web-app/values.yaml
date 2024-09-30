@@ -1,0 +1,95 @@
+replicaCount: 1
+
+image:
+  repository: ""
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+env: {}
+
+secretFrom: {}
+  # name: the name of the secret to mount
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+httproute:
+  enabled: false
+  annotations: {}
+  parentRefs:
+    - name: kong
+      namespace: kong-system
+      group: gateway.networking.k8s.io
+      kind: Gateway
+  hostnames: []
+  rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /
+      # backendRefs can be omitted to use the default service
+      # backendRefs:
+      #   - name: custom-service
+      #     kind: Service
+      #     port: 8080
+    # Example of a more complex rule
+    # - matches:
+    #   - headers:
+    #       - name: "X-Version"
+    #         value: "v3"
+    #     path:
+    #       type: PathPrefix
+    #       value: /test
+    #   backendRefs:
+    #     - name: api-v2
+    #       kind: Service
+    #       port: 8081
+    
+  # Additional HTTPRoutes
+  additionalRoutes: []
+
+resources: {}
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+
+volumes: []
+
+volumeMounts: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
