@@ -10,6 +10,9 @@ nameOverride: ""
 fullnameOverride: ""
 
 env: {}
+  
+secretFrom: {}
+  # name: the name of the secret to mount
 
 serviceAccount:
   create: true
@@ -34,21 +37,37 @@ service:
   type: ClusterIP
   port: 80
 
-ingress:
+httproute:
   enabled: false
-  className: ""
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  gatewayName: kong
+  gatewayNamespace: kong-system
+  hostnames: []
+  rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /
+      # backendRefs can be omitted to use the default service
+      # backendRefs:
+      #   - name: custom-service
+      #     kind: Service
+      #     port: 8080
+    # Example of a more complex rule
+    # - matches:
+    #   - headers:
+    #       - name: "X-Version"
+    #         value: "v3"
+    #     path:
+    #       type: PathPrefix
+    #       value: /test
+    #   backendRefs:
+    #     - name: api-v2
+    #       kind: Service
+    #       port: 8081
+    
+  # Additional HTTPRoutes
+  additionalRoutes: []
 
 resources: {}
 

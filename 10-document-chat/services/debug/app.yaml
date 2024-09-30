@@ -4,7 +4,7 @@ spec:
   source:
     chart: backend-service
     repoURL: harbor.konsti.org/library
-    targetRevision: 0.4.0
+    targetRevision: 0.5.0
     helm:
       releaseName: service-debug
       valuesObject:
@@ -26,3 +26,15 @@ spec:
         readinessProbe:
           httpGet:
             path: /probe
+        httproute:
+          enabled: true
+          hostnames:
+            - api.konsti.org
+          annotations:
+            konghq.com/strip-path: "true"
+          rules:
+            - matches:
+                - path:
+                    type: PathPrefix
+                    value: /debug
+                    
