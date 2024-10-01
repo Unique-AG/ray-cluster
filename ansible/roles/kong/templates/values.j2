@@ -1,3 +1,23 @@
 ---
-env:
-  enable_controller_aigateway: true
+controller:
+  ingressController:
+    image:
+      tag: "3.3.1"
+    envFrom:
+      - configMapRef:
+          name: kong-controller-environment
+  podAnnotations:
+    checksum/controller-environment: "{{ lookup('file', 'templates/controller_environment.j2') | hash('sha256') }}"
+gateway:
+  image:
+    tag: "3.7.1"
+  plugins:
+    configMaps:
+      - name: kong-plugin-unique-jwt-auth
+        pluginName: unique-jwt-auth
+  podAnnotations:
+    checksum/kong-plugin-unique-jwt-auth: "{{ plugin_data_checksum }}"
+    checksum/gateway-environment: "{{ lookup('file', 'templates/gateway_environment.j2') | hash('sha256') }}"
+  envFrom:
+    - configMapRef:
+        name: kong-gateway-environment

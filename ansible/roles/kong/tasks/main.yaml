@@ -68,9 +68,47 @@
         name: "{{ kong_vars.kubernetes.helm.repository.org }}"
         repo_url: "{{ kong_vars.kubernetes.helm.repository.url }}"
 
+    - name: Add custom plugin
+      run_once: true
+      block:
+        - name: Prepare plugin data
+          set_fact:
+            plugin_data: "{{ plugin_data | default({}) | combine({ item | basename : lookup('file', item) }) }}"
+          with_fileglob: "custom-plugins/unique-jwt-auth/*"
+
+        - name: Calculate single checksum for all plugin files
+          set_fact:
+            plugin_data_checksum: "{{ plugin_data.values() | join('') | hash('sha256') }}"
+
+        - name: Create ConfigMap with plugin data
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            namespace: "{{ kong_vars.kubernetes.namespace }}"
+            definition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: kong-plugin-unique-jwt-auth
+              data: "{{ plugin_data }}"
+            wait: true
+
     - name: Kong Ingress Controller Chart Setup
       run_once: true
       block:
+        - name: Create a ConfigMap for the gateway environment
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            namespace: "{{ kong_vars.kubernetes.namespace }}"
+            definition: "{{ lookup('ansible.builtin.template', 'gateway_environment.j2') }}"
+            wait: true
+
+        - name: Create a ConfigMap for the controller environment
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            namespace: "{{ kong_vars.kubernetes.namespace }}"
+            definition: "{{ lookup('ansible.builtin.template', 'controller_environment.j2') }}"
+            wait: true
+
         - name: Install kong ingress controller
           kubernetes.core.helm:
             chart_ref: "{{ kong_ingress_controller_project_chart }}"
@@ -97,4 +135,10 @@
           kubernetes.core.k8s:
             kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
             definition: "{{ lookup('ansible.builtin.template', 'gateway.j2') }}"
+            wait: true
+
+        - name: Add Plugin
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            definition: "{{ lookup('ansible.builtin.template', 'kong_plugin.j2') }}"
             wait: true

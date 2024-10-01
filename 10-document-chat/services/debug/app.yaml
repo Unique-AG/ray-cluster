@@ -32,9 +32,9 @@ spec:
             - api.konsti.org
           annotations:
             konghq.com/strip-path: "true"
+            konghq.com/plugins: unique-jwt-auth
           rules:
             - matches:
                 - path:
                     type: PathPrefix
                     value: /debug
-                    

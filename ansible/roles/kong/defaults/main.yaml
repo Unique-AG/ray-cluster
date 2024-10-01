@@ -1,5 +1,6 @@
 ---
 kong_vars:
+  log_level: debug
   kubernetes:
     namespace: kong-system
     helm:
@@ -16,3 +17,5 @@ kong_vars:
           version: 0.14.1
     gateway:
       name: kong
+  zitadel:
+    domain: id.{{ domain }}
