@@ -21,6 +21,7 @@ chart_roles:
   - basic_auth
   - prometheus
   - kured
+  - reloader
   - rook_ceph
   - loki
   - stackgres
@@ -29,6 +30,7 @@ chart_roles:
   - harbor
   - nvidia_gpu_operator
   - ray
+  - zitadel
 
 apps:
   - llm-cluster
@@ -78,3 +80,9 @@ document_chat:
       user: user
       password: password
       database: database
+
+zitadel:
+  smtp:
+    host: host
+    user: user
+    password: password

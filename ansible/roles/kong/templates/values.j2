@@ -6,8 +6,8 @@ controller:
     envFrom:
       - configMapRef:
           name: kong-controller-environment
-  podAnnotations:
-    checksum/controller-environment: "{{ lookup('file', 'templates/controller_environment.j2') | hash('sha256') }}"
+  deploymentAnnotations:
+    configmap.reloader.stakater.com/reload: "kong-controller-environment"
 gateway:
   image:
     tag: "3.7.1"
@@ -15,9 +15,8 @@ gateway:
     configMaps:
       - name: kong-plugin-unique-jwt-auth
         pluginName: unique-jwt-auth
-  podAnnotations:
-    checksum/kong-plugin-unique-jwt-auth: "{{ plugin_data_checksum }}"
-    checksum/gateway-environment: "{{ lookup('file', 'templates/gateway_environment.j2') | hash('sha256') }}"
+  deploymentAnnotations:
+    configmap.reloader.stakater.com/reload: "kong-gateway-environment,kong-plugin-unique-jwt-auth"
   envFrom:
     - configMapRef:
         name: kong-gateway-environment

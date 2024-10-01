@@ -76,10 +76,6 @@
             plugin_data: "{{ plugin_data | default({}) | combine({ item | basename : lookup('file', item) }) }}"
           with_fileglob: "custom-plugins/unique-jwt-auth/*"
 
-        - name: Calculate single checksum for all plugin files
-          set_fact:
-            plugin_data_checksum: "{{ plugin_data.values() | join('') | hash('sha256') }}"
-
         - name: Create ConfigMap with plugin data
           kubernetes.core.k8s:
             kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"

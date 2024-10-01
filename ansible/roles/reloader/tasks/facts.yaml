@@ -1,0 +1,9 @@
+- name: Set project chart fact
+  ansible.builtin.set_fact:
+    reloader_project_chart: '{{ reloader_vars.kubernetes.helm.repository.org }}/{{ reloader_vars.kubernetes.helm.chart.name }}'
+  run_once: true
+
+- name: Set variables fact
+  ansible.builtin.set_fact:
+    reloader_vars: '{{ reloader_vars }}'
+  run_once: true
