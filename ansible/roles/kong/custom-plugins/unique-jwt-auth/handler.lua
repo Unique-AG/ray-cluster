@@ -33,6 +33,35 @@ local UniqueJwtAuthHandler = {
 -- custom helper function of the extended plugin "unique-jwt-auth"
 -- --> this is not contained in the official "jwt" pluging
 -------------------------------------------------------------------------------
+local function custom_helper_table_to_string(tbl)
+    local result = ""
+    for k, v in pairs(tbl) do
+        -- Check the key type (ignore any numerical keys - assume its an array)
+        if type(k) == "string" then
+            result = result .. "[\"" .. k .. "\"]" .. "="
+        end
+
+        -- Check the value type
+        if type(v) == "table" then
+            result = result .. custom_helper_table_to_string(v)
+        elseif type(v) == "boolean" then
+            result = result .. tostring(v)
+        else
+            result = result .. "\"" .. v .. "\""
+        end
+        result = result .. ","
+    end
+    -- Remove leading commas from the result
+    if result ~= "" then
+        result = result:sub(1, result:len() - 1)
+    end
+    return result
+end
+
+-------------------------------------------------------------------------------
+-- custom helper function of the extended plugin "unique-jwt-auth"
+-- --> this is not contained in the official "jwt" pluging
+-------------------------------------------------------------------------------
 local function custom_helper_issuer_get_keys(well_known_endpoint)
     kong.log.debug('Getting public keys from token issuer')
     local keys, err = zitadel_keys.get_issuer_keys(well_known_endpoint)
@@ -41,7 +70,6 @@ local function custom_helper_issuer_get_keys(well_known_endpoint)
     end
 
     kong.log.debug('Number of keys retrieved: ' .. table.getn(keys))
-    kong.log.debug('Keys: ' .. cjson.encode(keys))
 
     return {
         keys = keys,
@@ -96,6 +124,31 @@ local function custom_validate_token_signature(conf, jwt, second_call)
     return kong.response.exit(401, {
         message = "Invalid token signature"
     })
+end
+
+local function custom_set_unique_headers(conf, jwt_claims)
+  local set_header = kong.service.request.set_header
+  -- Set x-user-id
+  set_header("x-user-id", jwt_claims.sub)
+
+  -- Set x-company-id, x-company-name, and x-company-domain
+  set_header("x-company-id", jwt_claims["urn:zitadel:iam:user:resourceowner:id"])
+  set_header("x-company-name", jwt_claims["urn:zitadel:iam:user:resourceowner:name"])
+  set_header("x-company-domain", jwt_claims["urn:zitadel:iam:user:resourceowner:primary_domain"])
+
+  -- Set x-user-roles if conf.zitadel_project_id is specified
+  if conf.zitadel_project_id then
+      local project_roles_key = "urn:zitadel:iam:org:project:" .. conf.zitadel_project_id .. ":roles"
+      local project_roles = jwt_claims[project_roles_key]
+
+      if project_roles then
+          local role_names = {}
+          for role_name, _ in pairs(project_roles) do
+              table.insert(role_names, role_name)
+          end
+          set_header("x-user-roles", table.concat(role_names, ","))
+      end
+  end
 end
 
 -------------------------------------------------------------------------------
@@ -259,6 +312,28 @@ local function do_authentication(conf)
     if err ~= nil then
         return false, err
     end
+
+    -- Verify the JWT registered claims
+    local ok_claims, errors = jwt:verify_registered_claims(conf.claims_to_verify)
+    if not ok_claims then
+        return false, {
+            status = 401,
+            message = "Token claims invalid: " .. custom_helper_table_to_string(errors)
+        }
+    end
+
+    -- Verify the JWT registered claims
+    if conf.maximum_expiration ~= nil and conf.maximum_expiration > 0 then
+        local ok, errors = jwt:check_maximum_expiration(conf.maximum_expiration)
+        if not ok then
+            return false, {
+                status = 403,
+                message = "Token claims invalid: " .. custom_helper_table_to_string(errors)
+            }
+        end
+    end
+
+    custom_set_unique_headers(conf, jwt.claims)
 
     return true
 end

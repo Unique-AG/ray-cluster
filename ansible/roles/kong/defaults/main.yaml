@@ -19,3 +19,4 @@ kong_vars:
       name: kong
   zitadel:
     domain: id.{{ domain }}
+    project_id: "{{ zitadel.project_id }}"

@@ -11,3 +11,4 @@ config:
     - "https://{{ kong_vars.zitadel.domain }}"
   algorithm: RS256
   well_known_template: "https://{{ kong_vars.zitadel.domain }}/.well-known/openid-configuration"
+  zitadel_project_id: "{{ kong_vars.zitadel.project_id }}"

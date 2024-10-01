@@ -41,6 +41,23 @@ local schema = {
                     default = {"authorization"}
                 }
             }, {
+                claims_to_verify = {
+                    -- description = "A list of registered claims (according to RFC 7519) that Kong can verify as well. Accepted values: one of exp or nbf.",
+                    type = "set",
+                    elements = {
+                        type = "string",
+                        one_of = {"exp", "nbf"}
+                    },
+                    default = {"exp"}
+                }
+            }, {
+                maximum_expiration = {
+                    -- description = "A value between 0 and 31536000 (365 days) limiting the lifetime of the JWT to maximum_expiration seconds in the future.",
+                    type = "number",
+                    default = 0,
+                    between = {0, 31536000}
+                }
+            }, {
                 anonymous = {
                     -- description = "An optional string (consumer UUID or username) value to use as an �anonymous� consumer if authentication fails.",
                     type = "string"
@@ -76,6 +93,10 @@ local schema = {
                 well_known_template = {
                     type = "string",
                     default = "%s/.well-known/openid-configuration"
+                }
+            }, {
+                zitadel_project_id = {
+                    type = "string"
                 }
             }}
         }
