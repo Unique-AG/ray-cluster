@@ -1,0 +1,11 @@
+---
+external_secrets_vars:
+  kubernetes:
+    namespace: kube-system
+    helm:
+      chart:
+        name: external-secrets
+        version: 0.10.4
+      repository:
+        org: external-secrets
+        url: https://charts.external-secrets.io

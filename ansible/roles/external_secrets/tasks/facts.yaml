@@ -1,0 +1,9 @@
+- name: Set project chart fact
+  ansible.builtin.set_fact:
+    external_secrets_project_chart: '{{ external_secrets_vars.kubernetes.helm.repository.org }}/{{ external_secrets_vars.kubernetes.helm.chart.name }}'
+  run_once: true
+
+- name: Set variables fact
+  ansible.builtin.set_fact:
+    external_secrets_vars: '{{ external_secrets_vars }}'
+  run_once: true

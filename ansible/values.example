@@ -22,6 +22,7 @@ chart_roles:
   - prometheus
   - kured
   - reloader
+  - external_secrets
   - rook_ceph
   - loki
   - stackgres

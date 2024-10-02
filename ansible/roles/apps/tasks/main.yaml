@@ -25,12 +25,14 @@
 
     - name: Create namespaces if they don't exist
       kubernetes.core.k8s:
-        name: "{{ item.spec.destination.namespace }}"
+        name: "{{ item }}"
         api_version: v1
         kind: Namespace
         state: present
         kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
-      loop: "{{ secret_definitions | selectattr('spec.destination.namespace', 'defined') | list }}"
+      loop: "{{ apps }}"
+      loop_control:
+        loop_var: item
 
     - name: Create ArgoCD Applications
       kubernetes.core.k8s:
@@ -52,3 +54,30 @@
       loop_control:
         label: "{{ item.metadata.name if item.metadata is defined else 'unnamed secret' }}"
       when: item is not none
+
+    - name: Create SecretStore for Apps
+      kubernetes.core.k8s:
+        kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+        wait: true
+        definition:
+          apiVersion: external-secrets.io/v1beta1
+          kind: ClusterSecretStore
+          metadata:
+            name: "{{ item }}-secret-store"
+          spec:
+            provider:
+              kubernetes:
+                remoteNamespace: "{{ item }}"
+                server:
+                  caProvider:
+                    type: ConfigMap
+                    namespace: kube-system
+                    name: kube-root-ca.crt
+                    key: ca.crt
+                auth:
+                  serviceAccount:
+                    name: external-secrets
+                    namespace: kube-system
+      loop: "{{ apps }}"
+      loop_control:
+        loop_var: item
