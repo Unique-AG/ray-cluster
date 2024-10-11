@@ -16,13 +16,6 @@
         timeout: 30
       any_errors_fatal: true
 
-    - name: Get secret definitions
-      set_fact:
-        secret_definitions: "{{ secret_definitions | default([]) + [lookup('ansible.builtin.template', item + '.secrets.j2', errors='ignore') | from_yaml] }}"
-      loop: "{{ apps }}"
-      loop_control:
-        loop_var: item
-
     - name: Create namespaces if they don't exist
       kubernetes.core.k8s:
         name: "{{ item }}"
@@ -47,13 +40,13 @@
 
     - name: Create Secrets for Apps
       kubernetes.core.k8s:
-        definition: "{{ item }}"
+        definition: "{{ lookup('ansible.builtin.template', item + '.secrets.j2', errors='ignore') | default('', true) | from_yaml_all | list }}"
         kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
         wait: true
-      loop: "{{ secret_definitions | select('defined') | list }}"
+      loop: "{{ apps }}"
       loop_control:
-        label: "{{ item.metadata.name if item.metadata is defined else 'unnamed secret' }}"
-      when: item is not none
+        label: "{{ item }}"
+      when: lookup('ansible.builtin.template', item + '.secrets.j2', errors='ignore') | default('', true) | trim != ''
 
     - name: Create SecretStore for Apps
       kubernetes.core.k8s:

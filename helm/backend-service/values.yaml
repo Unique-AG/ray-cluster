@@ -73,11 +73,11 @@ resources: {}
 
 livenessProbe:
   httpGet:
-    path: /
+    path: /probe
     port: http
 readinessProbe:
   httpGet:
-    path: /
+    path: /probe
     port: http
 
 volumes: []
@@ -89,3 +89,23 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+externalSecret:
+  enabled: false
+  refreshInterval: 5m
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: default-secret-store
+  target:
+    template:
+      data: {}
+  data: []
+
+objectBucketClaims:
+  enabled: false
+  buckets:
+    - name: example-bucket
+
+hooks:
+  migration:
+    enabled: false

@@ -43,6 +43,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "backend-service.fullname" . }}
+            {{- if .Values.externalSecret.enabled }}
+            - secretRef:
+                name: {{ include "backend-service.fullname" . }}
+            {{- end }}
             {{- if .Values.secretFrom }}
             - secretRef:
                 name: {{ .Values.secretFrom.name }}

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.0] - 2024-10-11
+
+- Add externalSecret
+- Add objectBucketClaims
 
 ## [0.4.0] - 2024-09-18
 
