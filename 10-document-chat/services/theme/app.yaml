@@ -1,0 +1,73 @@
+spec:
+  name: document-chat-service-theme
+  autoSync: true
+  source:
+    chart: backend-service
+    repoURL: harbor.konsti.org/library
+    targetRevision: 0.9.3
+    helm:
+      releaseName: service-theme
+      valuesObject:
+        nameOverride: service-theme
+        image:
+          repository: harbor.konsti.org/library/backend-service-theme
+          tag: "2024.38"
+        service:
+          port: 8095
+        env:
+          LOG_LEVEL: info
+          MAX_HEAP_MB: 256
+          CORS_ALLOWED_ORIGINS: '["https://app.konsti.org"]'
+          ZITADEL_PROJECT_ID: '-' # Not required any more, as Kong extracts roles from JWT
+        replicaCount: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 300Mi
+          limits:
+            memory: 350Mi
+        hooks:
+          migration:
+            enabled: true
+            command: |
+              cd /node/dist/apps/node-theme; npx prisma migrate deploy
+        httproute:
+          enabled: true
+          hostnames:
+            - api.konsti.org
+          annotations:
+            konghq.com/strip-path: "true"
+            konghq.com/plugins: unique-jwt-auth
+          rules:
+            - matches:
+                - path:
+                    type: PathPrefix
+                    value: /theme
+        externalSecret:
+          enabled: true
+          refreshInterval: 5m
+          secretStoreRef:
+            kind: ClusterSecretStore
+            name: document-chat-secret-store
+          target:
+            template:
+              data:
+                DATABASE_URL: "postgresql://{{ .postgresUsername }}:{{ .postgresPassword }}@{{ .postgresHost }}:{{ .postgresPort }}/theme"
+          data:
+            - secretKey: postgresPassword
+              remoteRef:
+                key: chat-database-user-sql
+                property: password
+            - secretKey: postgresUsername
+              remoteRef:
+                key: chat-database-user-sql
+                property: username
+            - secretKey: postgresHost
+              remoteRef:
+                key: postgres-cluster-binding
+                property: host
+            - secretKey: postgresPort
+              remoteRef:
+                key: postgres-cluster-binding
+                property: port
+                

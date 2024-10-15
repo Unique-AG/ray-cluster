@@ -86,7 +86,7 @@ spec:
             template:
               data:
                 AMQP_URL: "amqp://{{ .rabbitmqUsername }}:{{ .rabbitmqPassword }}@{{ .rabbitmqHost }}:{{ .rabbitmqPort }}"
-                DATABASE_URL: "postgresql://{{ .postgresUsername }}:{{ .postgresPassword }}@{{ .postgresHost }}:{{ .postgresPort }}/{{ .postgresDatabase }}"
+                DATABASE_URL: "postgresql://{{ .postgresUsername }}:{{ .postgresPassword }}@{{ .postgresHost }}:{{ .postgresPort }}/chat"
                 CHAT_LXM_ENCRYPTION_KEY: "{{ .lxmEncryptionKey }}"
                 S3_BUCKET_ACCESS_KEY: "{{ .chatStorageBucketAccessKey }}"
                 S3_BUCKET_SECRET_ACCESS_KEY: "{{ .chatStorageBucketSecretKey }}"
@@ -115,10 +115,6 @@ spec:
               remoteRef:
                 key: chat-database-user-sql
                 property: username
-            - secretKey: postgresDatabase
-              remoteRef:
-                key: chat-database-user-sql
-                property: database
             - secretKey: postgresHost
               remoteRef:
                 key: postgres-cluster-binding

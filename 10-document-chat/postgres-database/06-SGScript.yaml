@@ -16,4 +16,24 @@ spec:
     scriptFrom:
       secretKeyRef:
         name: chat-database-user-sql
-        key: create-database-sql
+        key: create-chat-database-sql
+  - name: create-theme-database
+    scriptFrom:
+      secretKeyRef:
+        name: chat-database-user-sql
+        key: create-theme-database-sql
+  - name: create-scope-management-database
+    scriptFrom:
+      secretKeyRef:
+        name: chat-database-user-sql
+        key: create-scope-management-database-sql
+  - name: create-app-repository-database
+    scriptFrom:
+      secretKeyRef:
+        name: chat-database-user-sql
+        key: create-app-repository-database-sql
+  - name: create-ingestion-database
+    scriptFrom:
+      secretKeyRef:
+        name: chat-database-user-sql
+        key: create-ingestion-database-sql
