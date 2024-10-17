@@ -56,7 +56,7 @@ spec:
           target:
             template:
               data:
-                DATABASE_URL: "postgresql://{{ .postgresUsername }}:{{ .postgresPassword }}@{{ .postgresHost }}:{{ .postgresPort }}/scope_management"
+                DATABASE_URL: "postgresql://{{ .postgresUsername }}:{{ .postgresPassword }}@{{ .postgresHost }}:{{ .postgresPort }}/scope_management?pgbouncer=true"
                 ZITADEL_PAT: "{{ .zitadelPat }}"
           data:
             - secretKey: postgresPassword

@@ -52,7 +52,7 @@ spec:
           target:
             template:
               data:
-                DATABASE_URL: "postgresql://{{ .postgresUsername }}:{{ .postgresPassword }}@{{ .postgresHost }}:{{ .postgresPort }}/theme"
+                DATABASE_URL: "postgresql://{{ .postgresUsername }}:{{ .postgresPassword }}@{{ .postgresHost }}:{{ .postgresPort }}/theme?pgbouncer=true"
           data:
             - secretKey: postgresPassword
               remoteRef:
