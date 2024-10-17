@@ -22,7 +22,7 @@ spec:
           MAX_HEAP_MB: 750
           ZITADEL_INTERNAL_HOST: 'http://zitadel.zitadel.svc:8080'
           ZITADEL_HOST: 'https://id.konsti.org'
-          CORS_ALLOWED_ORIGINS: '["https://app.konsti.org"]'
+          CORS_ALLOWED_ORIGINS: '["https://app.konsti.org"]' # TODO: Remove this once we have proper CORS management in place
         replicaCount: 1
         resources:
           requests:

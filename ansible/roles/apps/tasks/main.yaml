@@ -42,6 +42,7 @@
       kubernetes.core.k8s:
         definition: "{{ lookup('ansible.builtin.template', item + '.secrets.j2', errors='ignore') | default('', true) | from_yaml_all | list }}"
         kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+        apply: true
         wait: true
       loop: "{{ apps }}"
       loop_control:

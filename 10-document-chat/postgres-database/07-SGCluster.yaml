@@ -8,6 +8,9 @@ metadata:
 spec:
   postgres:
     version: "16.4"
+    extensions:
+      - name: pg_trgm
+      - name: pg_stat_statements
   instances: 3
   sgInstanceProfile: "postgres-instance-profile"
   pods:
