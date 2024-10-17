@@ -7,6 +7,8 @@ metadata:
     kubernetes.io/ingress.class: kong
 plugin: unique-jwt-auth
 config:
+  uri_param_names:
+    - "token"
   allowed_iss:
     - "https://{{ kong_vars.zitadel.domain }}"
   algorithm: RS256

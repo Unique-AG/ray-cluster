@@ -77,7 +77,7 @@ spec:
             template:
               data:
                 AMQP_URL: "amqp://{{ .rabbitmqUsername }}:{{ .rabbitmqPassword }}@{{ .rabbitmqHost }}:{{ .rabbitmqPort }}"
-                DATABASE_URL: "postgresql://{{ .postgresUsername }}:{{ .postgresPassword }}@{{ .postgresHost }}:{{ .postgresPort }}/ingestion?pgbouncer=true"
+                DATABASE_URL: "postgresql://{{ .postgresUsername }}:{{ .postgresPassword }}@{{ .postgresHost }}:{{ .postgresPort }}/ingestion"
                 QDRANT_URL: 'http://qdrant.qdrant.svc:6333'
                 S3_BUCKET_ACCESS_KEY: "{{ .chatStorageBucketAccessKey }}"
                 S3_BUCKET_SECRET_ACCESS_KEY: "{{ .chatStorageBucketSecretKey }}"

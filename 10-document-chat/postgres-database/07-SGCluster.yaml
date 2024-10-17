@@ -14,12 +14,12 @@ spec:
   instances: 3
   sgInstanceProfile: "postgres-instance-profile"
   pods:
+    disableConnectionPooling: true
     persistentVolume:
       size: "10Gi"
       storageClass: ceph-block
   configurations:
     sgPostgresConfig: "postgres-config"
-    sgPoolingConfig: "postgres-pooling-config"
     backups:
       - sgObjectStorage: "postgres-backup-config"
         cronSchedule: "*/5 * * * *"
