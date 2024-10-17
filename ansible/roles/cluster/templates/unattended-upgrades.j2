@@ -21,7 +21,7 @@ Unattended-Upgrade::Package-Blacklist {
 };
 
 // Automatically reboot if necessary.
-Unattended-Upgrade::Automatic-Reboot "true";
+Unattended-Upgrade::Automatic-Reboot "false";
 
 // Specify the time to reboot (default is "now").
 Unattended-Upgrade::Automatic-Reboot-Time "02:00";
@@ -37,7 +37,7 @@ Unattended-Upgrade::SyslogFacility "daemon";
 // Perform regular maintenance.
 Unattended-Upgrade::Remove-Unused-Dependencies "true";
 Unattended-Upgrade::Remove-New-Unused-Dependencies "true";
-Unattended-Upgrade::Automatic-Reboot-WithUsers "true";
+Unattended-Upgrade::Automatic-Reboot-WithUsers "false";
 
 // Timeouts for unattended-upgrades.
 Acquire::http::Dl-Limit "200";

@@ -20,7 +20,6 @@ chart_roles:
   - argocd
   - basic_auth
   - prometheus
-  - kured
   - reloader
   - external_secrets
   - rook_ceph
