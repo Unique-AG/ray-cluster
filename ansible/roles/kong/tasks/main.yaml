@@ -133,8 +133,14 @@
             definition: "{{ lookup('ansible.builtin.template', 'gateway.j2') }}"
             wait: true
 
-        - name: Add Plugin
+        - name: Add JWT Plugin
           kubernetes.core.k8s:
             kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
-            definition: "{{ lookup('ansible.builtin.template', 'kong_plugin.j2') }}"
+            definition: "{{ lookup('ansible.builtin.template', 'kong_jwt_plugin.j2') }}"
+            wait: true
+
+        - name: Add CORS Plugin
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            definition: "{{ lookup('ansible.builtin.template', 'kong_cors_plugin.j2') }}"
             wait: true

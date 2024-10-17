@@ -20,3 +20,5 @@ kong_vars:
   zitadel:
     domain: id.{{ domain }}
     project_id: "{{ zitadel.project_id }}"
+  app:
+    domain: app.{{ domain }}
