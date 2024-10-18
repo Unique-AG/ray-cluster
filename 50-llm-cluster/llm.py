@@ -43,8 +43,9 @@ class VLLMDeployment:
         self.lora_modules = lora_modules
         self.chat_template = chat_template
         self.engine = AsyncLLMEngine.from_engine_args(engine_args)
+        self.model_name = engine_args.model
 
-    @app.post("/v1/chat/completions")
+    @app.post("/openai/deployments/tinyllama/chat/completions")
     async def create_chat_completion(
         self, request: ChatCompletionRequest, raw_request: Request
     ):
@@ -70,6 +71,10 @@ class VLLMDeployment:
                 prompt_adapters=None,
                 request_logger=None,
             )
+
+        # Override the model parameter in the request
+        request.model = self.model_name
+
         logger.info(f"Request: {request}")
         generator = await self.openai_serving_chat.create_chat_completion(
             request, raw_request

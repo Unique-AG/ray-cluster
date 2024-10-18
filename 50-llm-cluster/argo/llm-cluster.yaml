@@ -20,6 +20,7 @@ spec:
             MODEL_ID: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
             TENSOR_PARALLEL_SIZE: "1"
             PIPELINE_PARALLEL_SIZE: "1"
+            DEPLOYMENT_NAME: "tinyllama"
         deployments:
           - name: VLLMDeployment
             num_replicas: 2

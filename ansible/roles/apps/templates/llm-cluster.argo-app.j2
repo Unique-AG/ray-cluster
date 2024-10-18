@@ -13,5 +13,8 @@ spec:
     path: 50-llm-cluster/argo
     targetRevision: HEAD
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
