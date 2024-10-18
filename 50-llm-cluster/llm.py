@@ -44,7 +44,7 @@ class VLLMDeployment:
         self.chat_template = chat_template
         self.engine = AsyncLLMEngine.from_engine_args(engine_args)
 
-    @app.post("/v1/chat/completions")
+    @app.post("/openai/deployments/tinyllama/chat/completions")
     async def create_chat_completion(
         self, request: ChatCompletionRequest, raw_request: Request
     ):
