@@ -126,29 +126,64 @@ local function custom_validate_token_signature(conf, jwt, second_call)
     })
 end
 
+-------------------------------------------------------------------------------
+-- custom unique specific extension for the plugin "unique-jwt-auth"
+-- --> This is for one of the main benefits when using this plugin
+--
+-- This extracts additional information from the token and sets it as headers
+-- for further usage in the backend services.
+-- x-user-id, x-company-id, x-company-name, x-company-domain, x-user-roles
+-------------------------------------------------------------------------------
 local function custom_set_unique_headers(conf, jwt_claims)
-  local set_header = kong.service.request.set_header
-  -- Set x-user-id
-  set_header("x-user-id", jwt_claims.sub)
+    local set_header = kong.service.request.set_header
+    -- Set x-user-id
+    set_header("x-user-id", jwt_claims.sub)
 
-  -- Set x-company-id, x-company-name, and x-company-domain
-  set_header("x-company-id", jwt_claims["urn:zitadel:iam:user:resourceowner:id"])
-  set_header("x-company-name", jwt_claims["urn:zitadel:iam:user:resourceowner:name"])
-  set_header("x-company-domain", jwt_claims["urn:zitadel:iam:user:resourceowner:primary_domain"])
+    -- Set x-company-id, x-company-name, and x-company-domain
+    set_header("x-company-id", jwt_claims["urn:zitadel:iam:user:resourceowner:id"])
+    set_header("x-company-name", jwt_claims["urn:zitadel:iam:user:resourceowner:name"])
+    set_header("x-company-domain", jwt_claims["urn:zitadel:iam:user:resourceowner:primary_domain"])
 
-  -- Set x-user-roles if conf.zitadel_project_id is specified
-  if conf.zitadel_project_id then
-      local project_roles_key = "urn:zitadel:iam:org:project:" .. conf.zitadel_project_id .. ":roles"
-      local project_roles = jwt_claims[project_roles_key]
+    -- Set x-user-roles if conf.zitadel_project_id is specified
+    if conf.zitadel_project_id then
+        local project_roles_key = "urn:zitadel:iam:org:project:" .. conf.zitadel_project_id .. ":roles"
+        local project_roles = jwt_claims[project_roles_key]
 
-      if project_roles then
-          local role_names = {}
-          for role_name, _ in pairs(project_roles) do
-              table.insert(role_names, role_name)
-          end
-          set_header("x-user-roles", table.concat(role_names, ","))
-      end
-  end
+        if project_roles then
+            local role_names = {}
+            for role_name, _ in pairs(project_roles) do
+                table.insert(role_names, role_name)
+            end
+            set_header("x-user-roles", table.concat(role_names, ","))
+        end
+    end
+end
+
+-------------------------------------------------------------------------------
+-- custom unique specific extension for the plugin "unique-jwt-auth"
+-- --> This is for one of the main benefits when using this plugin
+--
+-- The extension of this plugin uses kong cache to store things...
+-- so it is needed also to handle invalidation properly.
+-------------------------------------------------------------------------------
+local function get_consumer_custom_id_cache_key(custom_id)
+    return "custom_id_key_" .. custom_id
+end
+
+local function invalidate_customer(data)
+    local customer = data.entity
+    if data.operation == "update" then
+        customer = data.old_entity
+    end
+
+    local key = get_consumer_custom_id_cache_key(customer.custom_id)
+    kong.log.debug("invalidating customer " .. key)
+    kong.cache:invalidate(key)
+end
+
+-- register at startup for events to be able to receive invalidate request needs
+function JwtKeycloakHandler:init_worker()
+    kong.worker_events.register(invalidate_customer, "crud", "consumers")
 end
 
 -------------------------------------------------------------------------------
@@ -242,8 +277,95 @@ local function retrieve_tokens(conf)
 end
 
 local function set_consumer(consumer, credential, token)
-    -- TODO: implement
+    kong.client.authenticate(consumer, credential)
+
+    local set_header = kong.service.request.set_header
+    local clear_header = kong.service.request.clear_header
+
+    if consumer and consumer.id then
+        set_header(constants.HEADERS.CONSUMER_ID, consumer.id)
+    else
+        clear_header(constants.HEADERS.CONSUMER_ID)
+    end
+
+    if consumer and consumer.custom_id then
+        kong.log.debug("found consumer " .. consumer.custom_id)
+        set_header(constants.HEADERS.CONSUMER_CUSTOM_ID, consumer.custom_id)
+    else
+        clear_header(constants.HEADERS.CONSUMER_CUSTOM_ID)
+    end
+
+    if consumer and consumer.username then
+        set_header(constants.HEADERS.CONSUMER_USERNAME, consumer.username)
+    else
+        clear_header(constants.HEADERS.CONSUMER_USERNAME)
+    end
+
+    if credential and credential.key then
+        set_header(constants.HEADERS.CREDENTIAL_IDENTIFIER, credential.key)
+    else
+        clear_header(constants.HEADERS.CREDENTIAL_IDENTIFIER)
+    end
+
+    if credential then
+        clear_header(constants.HEADERS.ANONYMOUS)
+    else
+        set_header(constants.HEADERS.ANONYMOUS, true)
+    end
+
+    kong.ctx.shared.authenticated_jwt_token = token -- TODO: wrap in a PDK function?
 end
+
+-------------------------------------------------------------------------------
+-- custom unique specific extension for the plugin "unique-jwt-auth"
+-- --> This is for one of the main benefits when using this plugin
+--
+-- The extension of this plugin provides the possibility to enforce "matching"
+-- of consumer id from the token against the kong user object in the config
+-- in a very configurable way.
+-------------------------------------------------------------------------------
+local function custom_load_consumer_by_custom_id(custom_id)
+    local result, err = kong.db.consumers:select_by_custom_id(custom_id)
+    if not result then
+        return nil, err
+    end
+    return result
+end
+
+local function custom_match_consumer(conf, jwt)
+    local consumer, err
+    local consumer_id = jwt.claims[conf.consumer_match_claim]
+
+    if conf.consumer_match_claim_custom_id then
+        local consumer_cache_key = get_consumer_custom_id_cache_key(consumer_id)
+        consumer, err = kong.cache:get(consumer_cache_key, nil, custom_load_consumer_by_custom_id, consumer_id, true)
+    else
+        local consumer_cache_key = kong.db.consumers:cache_key(consumer_id)
+        consumer, err = kong.cache:get(consumer_cache_key, nil, kong.client.load_consumer, consumer_id, true)
+    end
+
+    if err then
+        kong.log.err(err)
+    end
+
+    if not consumer and not conf.consumer_match_ignore_not_found then
+        kong.log.debug("Unable to find consumer " .. consumer_id .. " for token")
+        return false, {
+            status = 401,
+            message = "Unable to find consumer " .. consumer_id .. " for token"
+        }
+    end
+
+    if consumer then
+        set_consumer(consumer, nil, nil)
+    end
+
+    return true
+end
+
+-------------------------------------------------------------------------------
+-- Now again module names which also exist in original "jwt" kong OSS plugin
+-------------------------------------------------------------------------------
 
 local function do_authentication(conf)
     local token, err = retrieve_tokens(conf)
@@ -335,6 +457,17 @@ local function do_authentication(conf)
 
     custom_set_unique_headers(conf, jwt.claims)
 
+    -- Match consumer
+    if conf.consumer_match then
+        local ok, err = custom_match_consumer(conf, jwt)
+        if not ok then
+            return ok, err
+        end
+    end
+
+    -- TODO: If further scope or role authentication is needed, do it here
+
+    kong.ctx.shared.unique_jwt_token = token
     return true
 end
 
@@ -342,7 +475,10 @@ local function set_anonymous_consumer(anonymous)
     local consumer_cache_key = kong.db.consumers:cache_key(anonymous)
     local consumer, err = kong.cache:get(consumer_cache_key, nil, kong.client.load_consumer, anonymous, true)
     if err then
-        return error(err)
+        kong.log.err(err)
+        return kong.response.exit(500, {
+            message = "An unexpected error occurred during authentication"
+        })
     end
 
     set_consumer(consumer)
