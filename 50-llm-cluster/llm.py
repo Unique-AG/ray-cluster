@@ -26,7 +26,7 @@ logger = logging.getLogger("ray.serve")
 app = FastAPI()
 
 
-@serve.deployment(name="VLLMDeployment")
+@serve.deployment(name="VLLMDeployment", num_replicas=2)
 @serve.ingress(app)
 class VLLMDeployment:
     def __init__(
@@ -84,7 +84,6 @@ class VLLMDeployment:
             assert isinstance(generator, ChatCompletionResponse)
             return JSONResponse(content=generator.model_dump())
 
-
 def parse_vllm_args(cli_args: Dict[str, str]):
     """Parses vLLM args based on CLI inputs.
 
@@ -125,5 +124,6 @@ model = build_app(
     {
         "model": os.environ["MODEL_ID"],
         "tensor-parallel-size": os.environ["TENSOR_PARALLEL_SIZE"],
+        "pipeline-parallel-size": os.environ["PIPELINE_PARALLEL_SIZE"],
     }
 )
