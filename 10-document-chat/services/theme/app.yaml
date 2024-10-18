@@ -4,7 +4,7 @@ spec:
   source:
     chart: backend-service
     repoURL: harbor.konsti.org/library
-    targetRevision: 0.9.3
+    targetRevision: 0.10.2
     helm:
       releaseName: service-theme
       valuesObject:

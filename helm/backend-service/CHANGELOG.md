@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10.0] - 2024-10-18
+
+- Add cronJob
+
 ## [0.9.0] - 2024-10-11
 
 - Add externalSecret

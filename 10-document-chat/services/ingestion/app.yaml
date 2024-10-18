@@ -4,7 +4,7 @@ spec:
   source:
     chart: backend-service
     repoURL: harbor.konsti.org/library
-    targetRevision: 0.9.3
+    targetRevision: 0.10.2
     helm:
       releaseName: service-ingestion
       valuesObject:
@@ -51,6 +51,22 @@ spec:
             enabled: true
             command: |
               cd /node/dist/apps/node-ingestion; npx prisma migrate deploy
+        cronJob:
+          enabled: true
+          name: expired-content-deletion
+          suspend: false
+          schedule: "*/5 * * * *"
+          timeZone: Europe/Zurich
+          concurrencyPolicy: Forbid
+          successfulJobsHistoryLimit: 1
+          failedJobsHistoryLimit: 1
+          env:
+            RUNNING_MODE: 'expired-content-deletion'
+          startingDeadlineSeconds: 10
+          jobTemplate:
+            restartPolicy: Never
+            containers:
+              name: ingestion-service-expired-content-deletion
         httproute:
           enabled: true
           hostnames:

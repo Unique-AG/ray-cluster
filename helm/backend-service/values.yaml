@@ -109,3 +109,37 @@ objectBucketClaims:
 hooks:
   migration:
     enabled: false
+    # name: "" defaults to db-migration
+    command: ""
+    # initContainers:
+    #   - command:
+    #       - sh
+    #       - -c
+    #       - export MY_VARIABLE="some_value" && sleep 1
+    #     volumeMounts:
+    #       - name: data
+    #         mountPath: /opt
+
+cronJob:
+  enabled: false
+  name: ""
+  suspend: false
+  schedule: ""
+  timeZone: "Europe/Zurich"
+  concurrencyPolicy: Allow
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  startingDeadlineSeconds: 60
+  jobTemplate:
+    restartPolicy: OnFailure
+    containers:
+      name: ""
+  env: {}
+  # initContainers: 
+  #   - command:
+  #       - sh
+  #       - -c
+  #       - export MY_VARIABLE="some_value" && sleep 1
+  #     volumeMounts:
+  #       - name: data
+  #         mountPath: /opt
