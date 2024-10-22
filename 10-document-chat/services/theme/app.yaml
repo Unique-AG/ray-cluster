@@ -11,7 +11,7 @@ spec:
         nameOverride: service-theme
         image:
           repository: harbor.konsti.org/library/backend-service-theme
-          tag: "2024.38"
+          tag: 2024.42
         service:
           port: 8095
         env:
