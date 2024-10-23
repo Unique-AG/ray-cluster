@@ -182,7 +182,7 @@ local function invalidate_customer(data)
 end
 
 -- register at startup for events to be able to receive invalidate request needs
-function JwtKeycloakHandler:init_worker()
+function UniqueJwtAuthHandler:init_worker()
     kong.worker_events.register(invalidate_customer, "crud", "consumers")
 end
 

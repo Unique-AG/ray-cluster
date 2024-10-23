@@ -71,12 +71,12 @@
     - name: Add custom plugin
       run_once: true
       block:
-        - name: Prepare plugin data
+        - name: Prepare jwt plugin data
           set_fact:
-            plugin_data: "{{ plugin_data | default({}) | combine({ item | basename : lookup('file', item) }) }}"
+            jwt_plugin_data: "{{ jwt_plugin_data | default({}) | combine({ item | basename : lookup('file', item) }) }}"
           with_fileglob: "custom-plugins/unique-jwt-auth/*"
 
-        - name: Create ConfigMap with plugin data
+        - name: Create JWT ConfigMap with jwt plugin data
           kubernetes.core.k8s:
             kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
             namespace: "{{ kong_vars.kubernetes.namespace }}"
@@ -85,7 +85,24 @@
               kind: ConfigMap
               metadata:
                 name: kong-plugin-unique-jwt-auth
-              data: "{{ plugin_data }}"
+              data: "{{ jwt_plugin_data }}"
+            wait: true
+        
+        - name: Prepare app-repo-auth plugin data
+          set_fact:
+            app_repo_plugin_data: "{{ app_repo_plugin_data | default({}) | combine({ item | basename : lookup('file', item) }) }}"
+          with_fileglob: "custom-plugins/unique-app-repo-auth/*"
+
+        - name: Create App-Repo-Auth ConfigMap with app-repo-auth plugin data
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            namespace: "{{ kong_vars.kubernetes.namespace }}"
+            definition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: kong-plugin-unique-app-repo-auth
+              data: "{{ app_repo_plugin_data }}"
             wait: true
 
     - name: Kong Ingress Controller Chart Setup
@@ -137,6 +154,12 @@
           kubernetes.core.k8s:
             kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
             definition: "{{ lookup('ansible.builtin.template', 'kong_jwt_plugin.j2') }}"
+            wait: true
+
+        - name: Add App-Repo-Auth Plugin
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            definition: "{{ lookup('ansible.builtin.template', 'kong_app_repo_plugin.j2') }}"
             wait: true
 
         - name: Add CORS Plugin

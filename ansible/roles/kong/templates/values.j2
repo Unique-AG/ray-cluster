@@ -15,8 +15,10 @@ gateway:
     configMaps:
       - name: kong-plugin-unique-jwt-auth
         pluginName: unique-jwt-auth
+      - name: kong-plugin-unique-app-repo-auth
+        pluginName: unique-app-repo-auth
   deploymentAnnotations:
-    configmap.reloader.stakater.com/reload: "kong-gateway-environment,kong-plugin-unique-jwt-auth"
+    configmap.reloader.stakater.com/reload: "kong-gateway-environment,kong-plugin-unique-jwt-auth,kong-plugin-unique-app-repo-auth"
   envFrom:
     - configMapRef:
         name: kong-gateway-environment

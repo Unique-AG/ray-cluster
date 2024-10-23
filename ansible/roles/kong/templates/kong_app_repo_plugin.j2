@@ -1,0 +1,8 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongClusterPlugin
+metadata:
+  name: unique-app-repo-auth
+  namespace: "{{ kong_vars.kubernetes.namespace }}"
+  annotations:
+    kubernetes.io/ingress.class: kong
+plugin: unique-app-repo-auth
