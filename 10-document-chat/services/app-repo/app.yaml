@@ -1,5 +1,5 @@
 spec:
-  name: service-app-repository
+  name: document-chat-service-app-repository
   autoSync: true
   source:
     chart: backend-service
