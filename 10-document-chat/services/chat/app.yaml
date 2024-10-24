@@ -77,13 +77,22 @@ spec:
               hostnames:
                 - api.konsti.org
               annotations:
-                konghq.com/strip-path: "true"
                 konghq.com/plugins: unique-app-repo-auth
               rules:
                 - matches:
                     - path:
                         type: PathPrefix
                         value: /public/chat
+                  filters:
+                  - type: URLRewrite
+                    urlRewrite:
+                      path:
+                        type: ReplacePrefixMatch
+                        replacePrefixMatch: /public
+                  backendRefs:
+                    - name: service-chat
+                      port: 8092
+                      kind: Service
         objectBucketClaims:
           enabled: true
           buckets:
