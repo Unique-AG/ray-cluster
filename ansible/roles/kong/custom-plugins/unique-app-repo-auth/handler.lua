@@ -2,7 +2,14 @@ local constants = require "kong.constants"
 local http = require("resty.http")
 local cjson = require("cjson.safe")
 
+local fmt = string.format
 local kong = kong
+local type = type
+local error = error
+local ipairs = ipairs
+local pairs = pairs
+local tostring = tostring
+local re_gmatch = ngx.re.gmatch
 
 local priority_env_var = "UNIQUE_APP_REPO_AUTH_PRIORITY"
 local priority
@@ -152,6 +159,7 @@ local function validate_api_key(app_repository_url, app_id, company_id, token)
 
     local path = string.format("/api-keys/validate?company-id=%s&app-id=%s&api-key=%s", ngx.escape_uri(company_id),
         ngx.escape_uri(app_id), ngx.escape_uri(token))
+
     local res, err = httpc:request_uri(app_repository_url .. path, {
         method = "GET"
     })
@@ -164,7 +172,7 @@ local function validate_api_key(app_repository_url, app_id, company_id, token)
     if res.status == 200 then
         return true
     else
-        kong.log.warn("API key validation failed with status: ", res.status)
+        kong.log.warn("API key validation failed with status: ", res.status, " and body: ", res.body)
         return false
     end
 end
@@ -208,9 +216,7 @@ local function do_authentication(conf)
         }
     end
 
-    kong.log.info("app_repository_url: " .. conf.app_repository_url)
-    kong.log.info("app_id: " .. app_id)
-    kong.log.info("company_id: " .. company_id)
+    kong.log.info("app_repository_url: " .. conf.app_repository_url .. " app_id: " .. app_id .. " company_id: " .. company_id)
 
     if validate_api_key(conf.app_repository_url, app_id, company_id, token) then
         return true
