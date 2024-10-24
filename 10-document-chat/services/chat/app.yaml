@@ -72,6 +72,18 @@ spec:
                 - path:
                     type: PathPrefix
                     value: /chat
+          additionalRoutes:
+            - name: service-chat-public-api
+              hostnames:
+                - api.konsti.org
+              annotations:
+                konghq.com/strip-path: "true"
+                konghq.com/plugins: unique-app-repo-auth
+              rules:
+                - matches:
+                    - path:
+                        type: PathPrefix
+                        value: /public/chat
         objectBucketClaims:
           enabled: true
           buckets:
