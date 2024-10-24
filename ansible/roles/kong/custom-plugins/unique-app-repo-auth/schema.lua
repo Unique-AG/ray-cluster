@@ -18,7 +18,7 @@ local schema = {
                     -- description = "The URL of the app repository.",
                     type = "string",
                     required = true,
-                    default = "http://service-app-repository.sdk.svc:8088"
+                    default = "http://service-app-repository.document-chat.svc:8088"
                 }
             }, {
                 uri_param_names = {

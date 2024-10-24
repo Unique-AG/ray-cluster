@@ -1,0 +1,103 @@
+spec:
+  name: service-app-repository
+  autoSync: true
+  source:
+    chart: backend-service
+    repoURL: harbor.konsti.org/library
+    targetRevision: 0.10.2
+    helm:
+      releaseName: service-app-repository
+      valuesObject:
+        nameOverride: service-app-repository
+        image:
+          repository: harbor.konsti.org/library/backend-service-app-repository
+          tag: 2024.42
+        service:
+          port: 8088
+        env:
+          LOG_LEVEL: info
+          MAX_HEAP_MB: 200
+          CORS_ALLOWED_ORIGINS: '["https://app.konsti.org"]' # TODO: Remove this once we have proper CORS management in place
+          ZITADEL_PROJECT_ID: 'null' # Not required any more, as Kong extracts roles from JWT
+        replicaCount: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 300Mi
+          limits:
+            cpu: 200m
+            memory: 350Mi
+        hooks:
+          migration:
+            enabled: true
+            command: |
+              cd /node/dist/apps/node-app-repository; npx prisma migrate deploy
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+        httproute:
+          enabled: true
+          hostnames:
+            - api.konsti.org
+          annotations:
+            konghq.com/strip-path: "true"
+            konghq.com/plugins: unique-jwt-auth
+          rules:
+            - matches:
+                - path:
+                    type: PathPrefix
+                    value: /apps
+        externalSecret:
+          enabled: true
+          refreshInterval: 5m
+          secretStoreRef:
+            kind: ClusterSecretStore
+            name: document-chat-secret-store
+          target:
+            template:
+              data:
+                AMQP_URL: "amqp://{{ .rabbitmqUsername }}:{{ .rabbitmqPassword }}@{{ .rabbitmqHost }}:{{ .rabbitmqPort }}"
+                DATABASE_URL: "postgresql://{{ .postgresUsername }}:{{ .postgresPassword }}@{{ .postgresHost }}:{{ .postgresPort }}/app_repository"
+                ENCRYPTION_KEY: "{{ .encryptionKey }}"
+          data:
+            - secretKey: rabbitmqPassword
+              remoteRef:
+                key: rabbitmq-default-user
+                property: password
+            - secretKey: rabbitmqUsername
+              remoteRef:
+                key: rabbitmq-default-user
+                property: username
+            - secretKey: rabbitmqHost
+              remoteRef:
+                key: rabbitmq-default-user
+                property: host
+            - secretKey: rabbitmqPort
+              remoteRef:
+                key: rabbitmq-default-user
+                property: port
+            - secretKey: postgresPassword
+              remoteRef:
+                key: chat-database-user-sql
+                property: password
+            - secretKey: postgresUsername
+              remoteRef:
+                key: chat-database-user-sql
+                property: username
+            - secretKey: postgresHost
+              remoteRef:
+                key: postgres-cluster-binding
+                property: host
+            - secretKey: postgresPort
+              remoteRef:
+                key: postgres-cluster-binding
+                property: port
+            - secretKey: encryptionKey
+              remoteRef:
+                key: document-chat-secrets
+                property: APP_REPOSITORY_ENCRYPTION_KEY
