@@ -89,6 +89,11 @@ spec:
                       path:
                         type: ReplacePrefixMatch
                         replacePrefixMatch: /public
+                  - type: RequestHeaderModifier
+                    requestHeaderModifier:
+                      add:
+                        - name: x-api-version
+                          value: 2023-12-06
                   backendRefs:
                     - name: service-chat
                       port: 8092
