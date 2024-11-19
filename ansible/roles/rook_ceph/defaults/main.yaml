@@ -23,6 +23,24 @@ rook_ceph_vars:
     toolbox:
       enabled: true
     object_storage:
+      storageClass: ceph-bucket
+      region: us-east-1
       ingress:
         enabled: true
         subdomain: ceph-os
+      metadataPool:
+        size: 1
+    cephCluster:
+      mon:
+        count: 1
+        allowMultiplePerNode: true
+      mgr:
+        count: 1
+        allowMultiplePerNode: true
+      blockPool:
+        size: 1
+      fileSystem:
+        metadataPool:
+          size: 1
+        dataPool:
+          size: 1

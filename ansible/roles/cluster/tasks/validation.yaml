@@ -6,7 +6,7 @@
 - name: Test SSH connection from localhost
   local_action:
     module: command
-    cmd: ssh -o BatchMode=yes -o ConnectTimeout=5 {{ ansible_user }}@{{ inventory_hostname }} echo OK
+    cmd: ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ ansible_user }}@{{ inventory_hostname }} echo OK
   register: root_connection_test
   become: false
   ignore_errors: true

@@ -25,6 +25,12 @@
         name: '{{ certmanager_vars.kubernetes.helm.repository.org }}'
         repo_url: '{{ certmanager_vars.kubernetes.helm.repository.url }}'
 
+    - name: Install Gateway API CRDs
+      kubernetes.core.k8s:
+        src: https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/experimental-install.yaml
+        kubeconfig: '{{ k3s_vars.directory.config }}/k3s.yaml'
+        state: present
+
     - name: Chart Setup
       run_once: true
       block:

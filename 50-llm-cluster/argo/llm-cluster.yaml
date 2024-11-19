@@ -23,7 +23,7 @@ spec:
             DEPLOYMENT_NAME: "tinyllama"
         deployments:
           - name: VLLMDeployment
-            num_replicas: 2
+            num_replicas: 1
             ray_actor_options:
               num_cpus: 4
   rayClusterConfig:
@@ -69,10 +69,6 @@ spec:
                 limits:
                   memory: "24G"
                   nvidia.com/gpu: 1
-                # requests:
-                #   cpu: 1
-                #   memory: "24G"
-                #   nvidia.com/gpu: 1
           runtimeClassName: nvidia
           affinity:
             nodeAffinity:
@@ -121,10 +117,6 @@ spec:
                   limits:
                     memory: "16G"
                     nvidia.com/gpu: 1
-                  # requests:
-                  #   cpu: 1
-                  #   memory: "16G"
-                  #   nvidia.com/gpu: 1
             runtimeClassName: nvidia
             affinity:
               nodeAffinity:
