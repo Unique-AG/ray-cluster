@@ -10,14 +10,14 @@ spec:
   sgInstanceProfile: "zitadel-db-instance-profile"
   pods:
     persistentVolume:
-      size: "10Gi"
+      size: "50Gi"
       storageClass: ceph-block
   configurations:
     sgPostgresConfig: "zitadel-db-config"
     sgPoolingConfig: "zitadel-db-pooling-config"
     backups:
       - sgObjectStorage: "zitadel-db-backup-config"
-        cronSchedule: "*/5 * * * *"
+        cronSchedule: "0 * * * *"
         retention: 6
   managedSql:
     scripts:

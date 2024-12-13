@@ -14,7 +14,7 @@ stackgres_vars:
       service:
         type: ClusterIP
     grafana:
-      autoEmbed: true
+      autoEmbed: false
       webHost: monitoring-grafana.monitoring
       secretNamespace: monitoring
       secretName: monitoring-grafana

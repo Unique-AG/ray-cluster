@@ -22,7 +22,7 @@ spec:
     sgPostgresConfig: "postgres-config"
     backups:
       - sgObjectStorage: "postgres-backup-config"
-        cronSchedule: "*/5 * * * *"
+        cronSchedule: "0 * * * *"
         retention: 6
   managedSql:
     scripts:
