@@ -11,7 +11,7 @@ spec:
         nameOverride: service-chat
         image:
           repository: harbor.konsti.org/library/backend-service-chat
-          tag: 2024.42
+          tag: 2024.50
         service:
           port: 8092
         env:

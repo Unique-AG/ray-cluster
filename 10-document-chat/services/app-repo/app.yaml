@@ -11,7 +11,7 @@ spec:
         nameOverride: service-app-repository
         image:
           repository: harbor.konsti.org/library/backend-service-app-repository
-          tag: 2024.42
+          tag: 2024.50
         service:
           port: 8088
         env:

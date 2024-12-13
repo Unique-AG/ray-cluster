@@ -11,7 +11,7 @@ spec:
         nameOverride: service-ingestion
         image:
           repository: harbor.konsti.org/library/backend-service-ingestion
-          tag: 2024.42
+          tag: 2024.50
         service:
           port: 8091
         env:
