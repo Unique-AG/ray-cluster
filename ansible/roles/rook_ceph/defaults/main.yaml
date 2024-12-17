@@ -3,7 +3,7 @@ rook_ceph_vars:
   kubernetes:
     helm:
       chart:
-        version: v1.15.1
+        version: "{{ versions.rook_ceph }}"
         operator:
           name: rook-ceph
         cluster:

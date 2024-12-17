@@ -4,7 +4,7 @@ harbor_vars:
     helm:
       chart:
         name: harbor
-        version: v1.15.1
+        version: "{{ versions.harbor }}"
       repository:
         name: harbor
         org: harbor

@@ -5,7 +5,7 @@ reloader_vars:
     helm:
       chart:
         name: reloader
-        version: 1.1.0
+        version: "{{ versions.reloader }}"
       repository:
         org: stakater
         url: https://stakater.github.io/stakater-charts

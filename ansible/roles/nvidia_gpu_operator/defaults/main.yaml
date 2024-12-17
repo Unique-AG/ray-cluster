@@ -9,7 +9,7 @@ nvidia_gpu_operator_vars:
     helm:
       chart:
         name: gpu-operator
-        version: v24.6.2
+        version: "{{ versions.nvidia_gpu_operator }}"
       repository:
         org: nvidia
         url: https://helm.ngc.nvidia.com/nvidia

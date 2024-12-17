@@ -1,13 +1,13 @@
 ---
 zitadel_vars:
   image:
-    tag: v2.62.2
+    tag: "{{ versions.zitadel }}"
   kubernetes:
     namespace: zitadel
     helm:
       chart:
         name: zitadel
-        version: 8.5.0
+        version: "{{ versions.zitadel_helm_chart }}"
       repository:
         org: zitadel
         url: https://charts.zitadel.com

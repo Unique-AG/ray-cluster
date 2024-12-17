@@ -4,7 +4,7 @@ redis_vars:
     helm:
       chart:
         name: redis
-        version: 20.1.3
+        version: "{{ versions.redis }}"
       repository:
         name: bitnami
         url: https://charts.bitnami.com/bitnami

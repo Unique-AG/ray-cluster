@@ -2,7 +2,7 @@
 controller:
   ingressController:
     image:
-      tag: "3.3.1"
+      tag: "{{ versions.kong_ingress_controller }}"
     envFrom:
       - configMapRef:
           name: kong-controller-environment
@@ -10,7 +10,7 @@ controller:
     configmap.reloader.stakater.com/reload: "kong-controller-environment"
 gateway:
   image:
-    tag: "3.7.1"
+    tag: "{{ versions.kong_controller }}"
   plugins:
     configMaps:
       - name: kong-plugin-unique-jwt-auth

@@ -4,3 +4,5 @@ metadata:
   name: kong-controller-environment
 data:
   CONTROLLER_LOG_LEVEL: "{{ kong_vars.log_level }}"
+  CONTROLLER_FEATURE_GATES: "RewriteURIs=true"
+  CONTROLLER_PROXY_SYNC_SECONDS: "15"

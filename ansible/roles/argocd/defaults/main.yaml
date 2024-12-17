@@ -34,7 +34,7 @@ argocd_vars:
       chart:
         name: argo-cd
         org: argoproj
-        version: v7.5.0
+        version: "{{ versions.argocd }}"
       repository:
         name: argo-helm
         org: argoproj

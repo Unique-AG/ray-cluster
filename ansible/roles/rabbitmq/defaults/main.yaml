@@ -4,7 +4,7 @@ rabbitmq_vars:
     helm:
       chart:
         name: rabbitmq-cluster-operator
-        version: 4.3.22
+        version: "{{ versions.rabbitmq_cluster_operator }}"
       repository:
         name: bitnami
         url: https://charts.bitnami.com/bitnami

@@ -5,7 +5,7 @@ external_secrets_vars:
     helm:
       chart:
         name: external-secrets
-        version: 0.10.4
+        version: "{{ versions.external_secrets }}"
       repository:
         org: external-secrets
         url: https://charts.external-secrets.io

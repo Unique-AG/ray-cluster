@@ -4,7 +4,7 @@ stackgres_vars:
     helm:
       chart:
         name: stackgres-operator
-        version: 1.13.0
+        version: "{{ versions.stackgres }}"
       repository:
         org: stackgres-charts
         url: https://stackgres.io/downloads/stackgres-k8s/stackgres/helm/

@@ -7,7 +7,7 @@ ray_vars:
         url: https://ray-project.github.io/kuberay-helm/
         github_org: ray-project
       chart:
-        version: v1.2.1
+        version: "{{ versions.ray }}"
     operator:
       helm:
         chart:

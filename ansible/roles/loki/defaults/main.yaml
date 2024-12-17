@@ -5,7 +5,7 @@ loki_vars:
     helm:
       chart:
         name: loki
-        version: 6.12.0
+        version: "{{ versions.loki }}"
       repository:
         org: grafana
         name: helm-charts
@@ -14,9 +14,9 @@ loki_vars:
     helm:
       chart:
         name: alloy
-        version: 0.7.0
+        version: "{{ versions.alloy }}"
   promtail:
     helm:
       chart:
         name: promtail
-        version: 6.16.0
+        version: "{{ versions.promtail }}"
