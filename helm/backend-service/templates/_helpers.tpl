@@ -60,3 +60,25 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Ports
+*/}}
+{{- define "backend-service.servicePort" -}}
+{{- if .Values.service.port -}}
+{{- .Values.service.port -}}
+{{- else if .Values.ports.service -}}
+{{- .Values.ports.service -}}
+{{- else -}}
+80
+{{- end -}}
+{{- end -}}
+
+{{/* Helper to get the application port */}}
+{{- define "backend-service.applicationPort" -}}
+{{- if .Values.ports.application -}}
+{{- .Values.ports.application -}}
+{{- else -}}
+8080
+{{- end -}}
+{{- end -}}

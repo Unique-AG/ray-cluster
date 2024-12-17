@@ -4,7 +4,7 @@ spec:
   source:
     chart: backend-service
     repoURL: harbor.konsti.org/library
-    targetRevision: 0.10.2
+    targetRevision: 0.11.0
     helm:
       releaseName: service-debug
       valuesObject:
@@ -12,8 +12,6 @@ spec:
         image:
           repository: harbor.konsti.org/library/debug
           tag: 2024-09-12-56806
-        service:
-          port: 9494
         resources:
           requests:
             cpu: 100m

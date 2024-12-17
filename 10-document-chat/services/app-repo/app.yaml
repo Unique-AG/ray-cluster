@@ -4,16 +4,14 @@ spec:
   source:
     chart: backend-service
     repoURL: harbor.konsti.org/library
-    targetRevision: 0.10.2
+    targetRevision: 0.11.0
     helm:
       releaseName: service-app-repository
       valuesObject:
         nameOverride: service-app-repository
         image:
           repository: harbor.konsti.org/library/backend-service-app-repository
-          tag: 2024.50
-        service:
-          port: 8088
+          tag: "2024.50"
         env:
           LOG_LEVEL: info
           MAX_HEAP_MB: 200

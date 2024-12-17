@@ -11,9 +11,7 @@ spec:
         nameOverride: web-app-chat
         image:
           repository: harbor.konsti.org/library/web-app-chat
-          tag: 2024.50
-        service:
-          port: 3000
+          tag: "2024.50"
         env:
           SELF_URL: https://app.konsti.org/chat
           KNOWLEDGE_UPLOAD_APP_URL: https://app.konsti.org/knowledge-upload

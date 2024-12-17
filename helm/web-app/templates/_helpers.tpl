@@ -60,3 +60,25 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Ports
+*/}}
+{{- define "web-app.servicePort" -}}
+{{- if .Values.service.port -}}
+{{- .Values.service.port -}}
+{{- else if .Values.ports.service -}}
+{{- .Values.ports.service -}}
+{{- else -}}
+80
+{{- end -}}
+{{- end -}}
+
+{{/* Helper to get the application port */}}
+{{- define "web-app.applicationPort" -}}
+{{- if .Values.ports.application -}}
+{{- .Values.ports.application -}}
+{{- else -}}
+3000
+{{- end -}}
+{{- end -}}

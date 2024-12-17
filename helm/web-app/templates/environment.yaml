@@ -4,7 +4,8 @@ metadata:
   name: {{ include "web-app.fullname" . }}
 data:
   VERSION: {{ .Values.image.tag | quote }}
-  PORT: {{ .Values.service.port | quote }}
+  PORT: {{ include "web-app.applicationPort" $ | quote }}
   {{- range $key, $value := .Values.env }}
   {{ $key }}: {{ $value | quote }}
   {{- end }}
+

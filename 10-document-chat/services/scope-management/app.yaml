@@ -4,16 +4,14 @@ spec:
   source:
     chart: backend-service
     repoURL: harbor.konsti.org/library
-    targetRevision: 0.10.2
+    targetRevision: 0.11.0
     helm:
       releaseName: service-scope-management
       valuesObject:
         nameOverride: service-scope-management
         image:
           repository: harbor.konsti.org/library/backend-service-scope-management
-          tag: 2024.50
-        service:
-          port: 8094
+          tag: "2024.50"
         env:
           LOG_LEVEL: info
           ZITADEL_PROJECT_ID: 'null' # Not required any more, as Kong extracts roles from JWT

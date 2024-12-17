@@ -4,16 +4,14 @@ spec:
   source:
     chart: backend-service
     repoURL: harbor.konsti.org/library
-    targetRevision: 0.10.2
+    targetRevision: 0.11.0
     helm:
       releaseName: service-ingestion
       valuesObject:
         nameOverride: service-ingestion
         image:
           repository: harbor.konsti.org/library/backend-service-ingestion
-          tag: 2024.50
-        service:
-          port: 8091
+          tag: "2024.50"
         env:
           LOG_LEVEL: info
           AZURE_OPENAI_API_DEPLOYMENT_NAME: foobar
