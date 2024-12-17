@@ -48,6 +48,7 @@ Selector labels
 {{- define "backend-service.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "backend-service.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: server
 {{- end }}
 
 {{/*

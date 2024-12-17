@@ -4,7 +4,7 @@ spec:
   source:
     chart: web-app
     repoURL: harbor.konsti.org/library
-    targetRevision: 0.8.0
+    targetRevision: 0.9.1
     helm:
       releaseName: web-app-chat
       valuesObject:

@@ -33,6 +33,12 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 1000
 
+ports:
+  # -- application port, this is the port that the deployed application listens on
+  application: 3000
+  # -- service port, this is the port that the service will be exposed on
+  service: 80
+
 service:
   type: ClusterIP
   port: 80

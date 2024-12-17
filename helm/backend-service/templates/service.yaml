@@ -4,7 +4,6 @@ metadata:
   name: {{ include "backend-service.fullname" . }}
   labels:
     {{- include "backend-service.labels" . | nindent 4 }}
-    app.kubernetes.io/component: server
 spec:
   type: {{ .Values.service.type }}
   ports:
