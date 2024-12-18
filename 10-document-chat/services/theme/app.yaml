@@ -1,10 +1,10 @@
 spec:
   name: document-chat-service-theme
-  autoSync: false
+  autoSync: true
   source:
     chart: backend-service
     repoURL: harbor.konsti.org/library
-    targetRevision: 0.11.1
+    targetRevision: 0.11.3
     helm:
       releaseName: service-theme
       valuesObject:

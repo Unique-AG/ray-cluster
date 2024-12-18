@@ -1,6 +1,6 @@
 {{- if .Values.httproute.enabled -}}
 {{- $fullName := include "web-app.fullname" . -}}
-{{- $svcPort := include "web-app.servicePort" $ -}}
+{{- $svcPort := include "web-app.servicePort" . -}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -30,7 +30,7 @@ spec:
     {{- toYaml .backendRefs | nindent 4 }}
     {{- else }}
     - name: {{ $fullName }}
-      port: http
+      port: {{ $svcPort }}
       kind: Service
     {{- end }}
     {{- end }}
