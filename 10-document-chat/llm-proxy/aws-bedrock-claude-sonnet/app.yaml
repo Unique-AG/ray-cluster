@@ -1,0 +1,7 @@
+spec:
+  name: aws-bedrock-claude-sonnet
+  autoSync: false
+  source:
+    repoURL: https://github.com/Unique-AG/ray-cluster
+    targetRevision: HEAD
+    path: 10-document-chat/llm-proxy/aws-bedrock-claude-sonnet/manifests

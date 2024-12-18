@@ -22,7 +22,7 @@ alertmanager:
     ingressClassName: kong
     annotations:
       cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
-      konghq.com/plugins: "{{ basic_auth_vars.plugin.name }}"
+      # konghq.com/plugins: "{{ basic_auth_vars.plugin.name }}"
     hosts:
       - {{ prometheus_vars.kubernetes.alertmanager.ingress.subdomain }}.{{ domain }}
     tls:
@@ -67,7 +67,7 @@ prometheus:
     ingressClassName: kong
     annotations:
       cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
-      konghq.com/plugins: "{{ basic_auth_vars.plugin.name }}"
+      # konghq.com/plugins: "{{ basic_auth_vars.plugin.name }}"
     hosts:
       - {{ prometheus_vars.kubernetes.prometheus.ingress.subdomain }}.{{ domain }}
     tls:

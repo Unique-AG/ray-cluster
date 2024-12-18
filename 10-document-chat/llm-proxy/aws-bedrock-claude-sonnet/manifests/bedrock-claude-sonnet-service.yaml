@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: aws-bedrock-claude-sonnet
+  namespace: document-chat
+  annotations:
+    konghq.com/plugins: aws-bedrock-claude-sonnet
+spec:
+  type: ExternalName
+  externalName: httpbin.konghq.com
+  ports:
+    - protocol: TCP
+      port: 80

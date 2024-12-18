@@ -1,25 +1,24 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: llm-cluster-dashboard-ingress
-  namespace: ray
+  name: aws-bedrock-claude-sonnet-ingress
+  namespace: document-chat
   annotations:
     kubernetes.io/ingress.class: kong
-    # konghq.com/plugins: "basic-auth"
     cert-manager.io/cluster-issuer: letsencrypt-production
 spec:
   tls:
     - hosts:
-        - llm-cluster-dashboard.konsti.org
-      secretName: llm-cluster-dashboard-tls
+        - claude.konsti.org
+      secretName: aws-bedrock-claude-sonnet-tls
   rules:
-    - host: llm-cluster-dashboard.konsti.org
+    - host: claude.konsti.org
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: llm-cluster-head-svc
+                name: aws-bedrock-claude-sonnet
                 port:
-                  number: 8265
+                  number: 80

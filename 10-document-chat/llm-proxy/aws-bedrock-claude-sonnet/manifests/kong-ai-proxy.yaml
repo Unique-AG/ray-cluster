@@ -1,0 +1,26 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: aws-bedrock-claude-sonnet
+plugin: ai-proxy
+config:
+  route_type: llm/v1/chat
+  auth:
+    allow_override: false
+  model:
+    provider: bedrock
+    name: anthropic.claude-3-5-sonnet-20240620-v1:0
+    options:
+      bedrock:
+        aws_region: eu-central-1
+configPatches:
+  - path: /auth/aws_access_key_id
+    valueFrom:
+      secretKeyRef:
+        name: aws-bedrock-user
+        key: aws_access_key_id
+  - path: /auth/aws_secret_access_key
+    valueFrom:
+      secretKeyRef:
+        name: aws-bedrock-user
+        key: aws_secret_access_key

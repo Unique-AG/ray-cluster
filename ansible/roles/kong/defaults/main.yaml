@@ -1,6 +1,6 @@
 ---
 kong_vars:
-  log_level: debug
+  log_level: info
   kubernetes:
     namespace: kong-system
     helm:
