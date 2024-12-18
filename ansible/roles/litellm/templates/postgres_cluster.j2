@@ -1,0 +1,25 @@
+apiVersion: stackgres.io/v1
+kind: SGCluster
+metadata:
+  namespace: {{ litellm_vars.kubernetes.namespace }}
+  name: {{ litellm_vars.postgres_cluster.name }}
+spec:
+  postgres:
+    version: "16.4"
+  instances: 3
+  sgInstanceProfile: "litellm-db-instance-profile"
+  pods:
+    persistentVolume:
+      size: "50Gi"
+      storageClass: ceph-block
+  configurations:
+    sgPostgresConfig: "litellm-db-config"
+    sgPoolingConfig: "litellm-db-pooling-config"
+    backups:
+      - sgObjectStorage: "litellm-db-backup-config"
+        cronSchedule: "0 * * * *"
+        retention: 6
+  managedSql:
+    scripts:
+      - sgScript: litellm-db-cluster-scripts
+  prometheusAutobind: true

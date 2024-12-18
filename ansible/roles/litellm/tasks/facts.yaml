@@ -1,0 +1,4 @@
+- name: Set variables fact
+  ansible.builtin.set_fact:
+    litellm_vars: '{{ litellm_vars }}'
+  run_once: true

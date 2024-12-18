@@ -1,0 +1,152 @@
+---
+- name: Import facts
+  ansible.builtin.include_role:
+    name: "{{ item }}"
+    tasks_from: facts
+  loop:
+    - k3s
+    - certmanager
+
+- name: Role Validation
+  ansible.builtin.import_tasks:
+    file: validation.yaml
+
+- name: Role Provisioning
+  when: ansible_host in k3s_server_hosts
+  block:
+    - name: Validate service state
+      ansible.builtin.wait_for:
+        port: "{{ k3s_vars.server.api.port }}"
+        state: started
+        timeout: 30
+      any_errors_fatal: true
+
+    - name: Create Litellm resources
+      run_once: true
+      block:
+        - name: Create Litellm namespace
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            definition:
+              apiVersion: v1
+              kind: Namespace
+              metadata:
+                name: "{{ litellm_vars.kubernetes.namespace }}"
+            wait: true
+
+        - name: Check if db secret exists
+          kubernetes.core.k8s_info:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            kind: Secret
+            name: litellm-db-user-sql
+            namespace: "{{ litellm_vars.kubernetes.namespace }}"
+          register: db_secret_check
+
+        - name: Generate Litellm Postgres password
+          ansible.builtin.command: openssl rand -base64 20
+          register: litellm_postgres_password_result
+          changed_when: false
+          when: db_secret_check.resources | length == 0
+
+        - name: Set Litellm Postgres password fact
+          ansible.builtin.set_fact:
+            litellm_postgres_password: "{{ litellm_postgres_password_result.stdout }}"
+          when: db_secret_check.resources | length == 0
+        
+        - name: Create ceph bucket for Litellm DB backups
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            definition: "{{ lookup('ansible.builtin.template', 'ceph_bucket.j2') }}"
+            wait: true
+
+        - name: Create db secret
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            definition: "{{ lookup('ansible.builtin.template', 'db_secret.j2') }}"
+            wait: true
+          when: db_secret_check.resources | length == 0
+
+        - name: Create postgres config
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            definition: "{{ lookup('ansible.builtin.template', 'postgres_config.j2') }}"
+            wait: true
+
+        - name: Create postgres cluster
+          kubernetes.core.k8s:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            definition: "{{ lookup('ansible.builtin.template', 'postgres_cluster.j2') }}"
+            wait: true
+
+        - name: Get user secret
+          kubernetes.core.k8s_info:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            api_version: v1
+            kind: Secret
+            name: litellm-db-user-sql
+            namespace: "{{ litellm_vars.kubernetes.namespace }}"
+          register: user_secret
+
+        - name: Get litellm-db-cluster secret
+          kubernetes.core.k8s_info:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            api_version: v1
+            kind: Secret
+            name: "{{ litellm_vars.postgres_cluster.name }}"
+            namespace: "{{ litellm_vars.kubernetes.namespace }}"
+          register: litellm_db_secret
+        
+        - name: Set litellm database credentials facts
+          ansible.builtin.set_fact:
+            litellm_db_user_username: "{{ user_secret.resources[0].data['litellm-user'] | b64decode }}"
+            litellm_db_user_password: "{{ user_secret.resources[0].data['litellm-user-password'] | b64decode }}"
+            litellm_db_superuser_username: "{{ litellm_db_secret.resources[0].data['superuser-username'] | b64decode }}"
+            litellm_db_superuser_password: "{{ litellm_db_secret.resources[0].data['superuser-password'] | b64decode }}"
+
+    - name: Litellm Chart Setup
+      run_once: true
+      block:
+        - name: Check if Litellm masterkey secret exists
+          kubernetes.core.k8s_info:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            kind: Secret
+            name: litellm-masterkey
+            namespace: "{{ litellm_vars.kubernetes.namespace }}"
+          register: masterkey_secret
+
+        - name: Generate Litellm masterkey
+          ansible.builtin.shell: echo "sk-$(tr -dc A-Za-z0-9 < /dev/urandom | head -c 32)"
+          register: litellm_masterkey_result
+          changed_when: false
+          when: masterkey_secret.resources | length == 0
+
+        - name: Set Litellm masterkey fact
+          ansible.builtin.set_fact:
+            litellm_masterkey: "{{ masterkey_secret.resources[0].data.masterkey | b64decode if masterkey_secret.resources | length > 0 else litellm_masterkey_result.stdout }}"
+
+        - name: Wait for litellm-db-cluster StatefulSet to have correct number of replicas
+          kubernetes.core.k8s_info:
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            api_version: apps/v1
+            kind: StatefulSet
+            name: "{{ litellm_vars.postgres_cluster.name }}"
+            namespace: "{{ litellm_vars.kubernetes.namespace }}"
+          register: litellm_db_cluster_status
+          until: litellm_db_cluster_status.resources[0].status.replicas is defined and litellm_db_cluster_status.resources[0].status.replicas == litellm_db_cluster_status.resources[0].spec.replicas
+          retries: 30
+          delay: 10
+
+        - name: Install litellm
+          kubernetes.core.helm:
+            chart_ref: "oci://{{ litellm_vars.kubernetes.helm.repository.url }}"
+            chart_version: "{{ litellm_vars.kubernetes.helm.chart.version }}"
+            create_namespace: true
+            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            name: "{{ litellm_vars.kubernetes.helm.chart.name }}"
+            namespace: "{{ litellm_vars.kubernetes.namespace }}"
+            values: "{{ lookup('ansible.builtin.template', 'values.j2') | from_yaml }}"
+            wait: true
+          register: result
+          delay: 1
+          retries: 3
+          until: result is not failed

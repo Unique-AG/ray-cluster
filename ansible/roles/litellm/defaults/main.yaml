@@ -1,0 +1,17 @@
+---
+litellm_vars:
+  kubernetes:
+    namespace: litellm
+    helm:
+      chart:
+        name: litellm
+        version: "{{ versions.litellm }}"
+      repository:
+        org: berriai
+        url: ghcr.io/berriai/litellm-helm
+    ingress:
+      subdomain: litellm
+  postgres_cluster:
+    name: litellm-db-cluster
+    user: litellm
+    database: litellm

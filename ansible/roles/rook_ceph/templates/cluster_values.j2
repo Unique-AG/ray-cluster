@@ -31,7 +31,7 @@ ingress:
       - hosts:
           - {{ rook_ceph_vars.kubernetes.ingress.subdomain }}.{{ domain }}
         secretName: rook-ceph-tls
-    ingressClassName: kong
+    ingressClassName: "{{ cluster.ingress_class }}"
 cephBlockPools:
   - name: ceph-blockpool
     spec:
