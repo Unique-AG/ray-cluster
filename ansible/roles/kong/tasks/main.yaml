@@ -68,42 +68,28 @@
         name: "{{ kong_vars.kubernetes.helm.repository.org }}"
         repo_url: "{{ kong_vars.kubernetes.helm.repository.url }}"
 
-    - name: Add custom plugin
+    - name: Add custom plugins via helm
       run_once: true
       block:
-        - name: Prepare jwt plugin data
-          set_fact:
-            jwt_plugin_data: "{{ jwt_plugin_data | default({}) | combine({ item | basename : lookup('file', item) }) }}"
-          with_fileglob: "custom-plugins/unique-jwt-auth/*"
+        - name: Add plugin repository
+          kubernetes.core.helm_repository:
+            name: unique
+            repo_url: https://unique-ag.github.io/helm-charts/
 
-        - name: Create JWT ConfigMap with jwt plugin data
-          kubernetes.core.k8s:
+        - name: Install custom plugins
+          kubernetes.core.helm:
+            chart_ref: "{{ kong_vars.kubernetes.custom_plugins.helm.repository.name }}/{{ kong_vars.kubernetes.custom_plugins.helm.chart.name }}"
+            chart_version: "{{ kong_vars.kubernetes.custom_plugins.helm.chart.version }}"
+            create_namespace: true
             kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+            name: "{{ kong_vars.kubernetes.custom_plugins.helm.chart.name }}"
             namespace: "{{ kong_vars.kubernetes.namespace }}"
-            definition:
-              apiVersion: v1
-              kind: ConfigMap
-              metadata:
-                name: kong-plugin-unique-jwt-auth
-              data: "{{ jwt_plugin_data }}"
+            update_repo_cache: true
             wait: true
-        
-        - name: Prepare app-repo-auth plugin data
-          set_fact:
-            app_repo_plugin_data: "{{ app_repo_plugin_data | default({}) | combine({ item | basename : lookup('file', item) }) }}"
-          with_fileglob: "custom-plugins/unique-app-repo-auth/*"
-
-        - name: Create App-Repo-Auth ConfigMap with app-repo-auth plugin data
-          kubernetes.core.k8s:
-            kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
-            namespace: "{{ kong_vars.kubernetes.namespace }}"
-            definition:
-              apiVersion: v1
-              kind: ConfigMap
-              metadata:
-                name: kong-plugin-unique-app-repo-auth
-              data: "{{ app_repo_plugin_data }}"
-            wait: true
+          register: plugins_result
+          delay: 1
+          retries: 3
+          until: plugins_result is not failed
 
     - name: Kong Ingress Controller Chart Setup
       run_once: true

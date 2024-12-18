@@ -1,10 +1,10 @@
 spec:
   name: document-chat-service-scope-management
-  autoSync: false
+  autoSync: true
   source:
     chart: backend-service
     repoURL: harbor.konsti.org/library
-    targetRevision: 0.11.1
+    targetRevision: 0.11.2
     helm:
       releaseName: service-scope-management
       valuesObject:

@@ -1,10 +1,10 @@
 spec:
   name: document-chat-service-chat
-  autoSync: false
+  autoSync: true
   source:
     chart: backend-service
     repoURL: harbor.konsti.org/library
-    targetRevision: 0.11.1
+    targetRevision: 0.11.2
     helm:
       releaseName: service-chat
       valuesObject:
@@ -94,7 +94,7 @@ spec:
                           value: 2023-12-06
                   backendRefs:
                     - name: service-chat
-                      port: 8092
+                      port: http
                       kind: Service
         objectBucketClaims:
           enabled: true

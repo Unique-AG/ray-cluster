@@ -10,6 +10,7 @@ controller:
     configmap.reloader.stakater.com/reload: "kong-controller-environment"
 gateway:
   image:
+    repository: kong/kong-gateway
     tag: "{{ versions.kong_controller }}"
   plugins:
     configMaps:

@@ -15,6 +15,14 @@ kong_vars:
         chart:
           name: ingress
           version: "{{ versions.kong_chart }}"
+    custom_plugins:
+      helm:
+        chart:
+          name: kong-plugins
+          version: "{{ versions.kong_plugins_chart }}"
+        repository:
+          name: unique
+          url: https://unique-ag.github.io/helm-charts/
     gateway:
       name: kong
   zitadel:
