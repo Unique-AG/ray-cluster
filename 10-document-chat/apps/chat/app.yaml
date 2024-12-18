@@ -1,6 +1,6 @@
 spec:
   name: document-chat-web-app-chat
-  autoSync: true
+  autoSync: false
   source:
     chart: web-app
     repoURL: harbor.konsti.org/library

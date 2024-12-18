@@ -30,7 +30,7 @@ spec:
     {{- toYaml .backendRefs | nindent 4 }}
     {{- else }}
     - name: {{ $fullName }}
-      port: {{ $svcPort }}
+      port: http
       kind: Service
     {{- end }}
     {{- end }}

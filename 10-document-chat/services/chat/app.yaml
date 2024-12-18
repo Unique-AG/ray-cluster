@@ -1,6 +1,6 @@
 spec:
   name: document-chat-service-chat
-  autoSync: true
+  autoSync: false
   source:
     chart: backend-service
     repoURL: harbor.konsti.org/library
