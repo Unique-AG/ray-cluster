@@ -18,6 +18,7 @@ spec:
           CHAT_APP_URL: https://app.konsti.org/chat
           ADMIN_APP_URL: https://app.konsti.org/admin
           INGESTION_BACKEND_API_URL: https://api.konsti.org/ingestion
+          SCOPE_MANAGEMENT_BACKEND_API_URL: https://api.konsti.org/scope-management
           THEME_BACKEND_API_URL: https://api.konsti.org/theme
           CHAT_BACKEND_API_URL: https://api.konsti.org/chat
           ZITADEL_ISSUER: https://id.konsti.org
