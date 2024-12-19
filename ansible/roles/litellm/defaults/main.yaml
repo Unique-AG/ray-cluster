@@ -8,7 +8,7 @@ litellm_vars:
         version: "{{ versions.litellm }}"
       repository:
         org: berriai
-        url: ghcr.io/berriai/litellm-helm
+        url: harbor.konsti.org/library
     ingress:
       subdomain: litellm
   postgres_cluster:

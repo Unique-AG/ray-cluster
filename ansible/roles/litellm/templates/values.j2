@@ -1,3 +1,25 @@
+env:
+  AWS_REGION_NAME: "eu-central-1"
+
+secretFrom:
+  name: litellm
+
+resources:
+  requests:
+    memory: 1Gi
+    cpu: 1
+  limits:
+    memory: 2Gi
+
+proxy_config:
+  model_list:
+    - model_name: bedrock-claude-sonnet-3-5
+      litellm_params:
+        model: anthropic.claude-3-5-sonnet-20240620-v1:0
+        aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+        aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+        aws_region_name: os.environ/AWS_REGION_NAME
+
 ingress:
   enabled: true
   className: "{{ cluster.ingress_class }}"
@@ -13,52 +35,3 @@ ingress:
     - hosts:
         - "{{ litellm_vars.kubernetes.ingress.subdomain }}.{{ cluster.domain }}"
       secretName: litellm-tls
-
-masterkey: "{{ litellm_masterkey }}"
-
-proxy_config:
-  model_list:
-    - model_name: fake-openai-endpoint
-      litellm_params:
-        model: openai/fake
-        api_key: fake-key
-        api_base: https://exampleopenaiendpoint-production.up.railway.app/
-
-  general_settings:
-    master_key: os.environ/PROXY_MASTER_KEY
-    alerting: []
-    proxy_batch_write_at: 60 # Batch write spend updates every 60s
-    database_connection_pool_limit: 10 # limit the number of database connections to = MAX Number of DB Connections/Number of instances of litellm proxy (Around 10-20 is good number)
-
-    # OPTIONAL Best Practices
-    disable_spend_logs: False # Disable when we have Prometheus metrics
-    disable_error_logs: False # Disable to improve performance
-
-  litellm_settings:
-    request_timeout: 600    # raise Timeout error if call takes longer than 600 seconds. Default value is 6000seconds if not set
-    set_verbose: False      # Switch off Debug Logging, ensure your logs do not have any debugging on
-    json_logs: true         # Get debug logs in json format
-
-resources:
-  requests:
-    memory: 1Gi
-    cpu: 1
-  limits:
-    memory: 2Gi
-
-autoscaling:
-  enabled: false
-  minReplicas: 2
-  maxReplicas: 10
-  targetCPUUtilizationPercentage: 80
-  targetMemoryUtilizationPercentage: 80
-
-db:
-  useExisting: true
-  endpoint: "{{ litellm_vars.postgres_cluster.name }}.{{ litellm_vars.kubernetes.namespace }}.svc"
-  database: "{{ litellm_vars.postgres_cluster.database }}"
-  secret:
-    name: litellm-db-user-sql
-    usernameKey: litellm-user
-    passwordKey: litellm-user-password
-  deployStandalone: false 

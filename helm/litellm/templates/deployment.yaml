@@ -34,7 +34,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (printf "main-%s" .Chart.AppVersion) }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -43,6 +43,9 @@ spec:
           args:
             - --config
             - /etc/litellm/config.yaml
+          env:
+            - name: DISABLE_SCHEMA_UPDATE
+              value: "true"
           envFrom:
             - configMapRef:
                 name: {{ include "litellm.fullname" . }}-environment

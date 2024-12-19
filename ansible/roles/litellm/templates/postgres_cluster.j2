@@ -7,19 +7,19 @@ spec:
   postgres:
     version: "16.4"
   instances: 3
-  sgInstanceProfile: "litellm-db-instance-profile"
+  sgInstanceProfile: litellm-db-instance-profile
   pods:
     persistentVolume:
       size: "50Gi"
       storageClass: ceph-block
   configurations:
-    sgPostgresConfig: "litellm-db-config"
-    sgPoolingConfig: "litellm-db-pooling-config"
+    sgPostgresConfig: litellm-db-config
+    sgPoolingConfig: litellm-db-pooling-config
     backups:
-      - sgObjectStorage: "litellm-db-backup-config"
+      - sgObjectStorage: litellm-db-backup-config
         cronSchedule: "0 * * * *"
         retention: 6
   managedSql:
     scripts:
-      - sgScript: litellm-db-cluster-scripts
+      - sgScript: litellm-db-scripts
   prometheusAutobind: true

@@ -48,7 +48,7 @@
           register: db_secret_check
 
         - name: Generate Zitadel Postgres password
-          ansible.builtin.command: openssl rand -base64 20
+          ansible.builtin.command: "openssl rand -hex 10"
           register: zitadel_postgres_password_result
           changed_when: false
           when: db_secret_check.resources | length == 0

@@ -26,7 +26,7 @@ podLabels: {}
 podSecurityContext: {}
 securityContext: {}
 
-# Default environment variables for the proxy
+# Default environment variables for the proxy. They are put into the environment configMap.
 env:
   LITELLM_LOG: "ERROR"
   LITELLM_MODE: "PRODUCTION"
@@ -134,4 +134,4 @@ hooks:
   migration:
     enabled: true
     command: |
-      cd app; python litellm/proxy/prisma_migration.py
+      python litellm/proxy/prisma_migration.py
