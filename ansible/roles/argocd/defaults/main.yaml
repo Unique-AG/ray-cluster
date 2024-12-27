@@ -49,7 +49,7 @@ argocd_vars:
           memory: 2Gi
     redis:
       high_availability:
-        enabled: true
+        enabled: false
       resources:
         limits:
           memory: 2Gi
@@ -58,7 +58,7 @@ argocd_vars:
           memory: 2Gi
     repo_server:
       autoscaling:
-        enabled: true
+        enabled: false
         min_replicas: 2
         target:
           cpu_percentage: 60

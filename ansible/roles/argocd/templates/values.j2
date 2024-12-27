@@ -8,6 +8,11 @@ applicationSet:
 configs:
   cm:
     exec.enabled: {{ argocd_vars.kubernetes.configs.cm.exec.enabled }}
+    resource.customizations.ignoreDifferences.apps_Deployment: |
+      jsonPointers:
+        - /spec/template/metadata/annotations/reloader.stakater.com~1last-reloaded-from
+      jqPathExpressions:
+        - .spec.template.metadata | select(.annotations == {})
   params:
     application.namespaces: {{ argocd_vars.kubernetes.server.application.namespaces | join(', ') }}
     server.insecure: {{ argocd_vars.kubernetes.configs.params.server.insecure }}
