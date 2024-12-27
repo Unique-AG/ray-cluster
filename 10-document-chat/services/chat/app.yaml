@@ -16,8 +16,8 @@ spec:
           LOG_LEVEL: info
           AZURE_OPENAI_API_DEPLOYMENT_NAME: gpt-35-turbo
           AZURE_OPENAI_API_VERSION: 2023-05-15
-          INGESTION_API_URL: 'http://service-ingestion.document-chat.svc:8091'
-          SCOPE_MANAGEMENT_API_URL: 'http://service-scope-management.document-chat.svc:8094'
+          INGESTION_API_URL: 'http://service-ingestion.document-chat.svc'
+          SCOPE_MANAGEMENT_API_URL: 'http://service-scope-management.document-chat.svc'
           PUBSUB_BACKEND: redis
           PUBSUB_REDIS_DB: 2
           PUBSUB_REDIS_HOST: document-chat-redis-master
@@ -43,7 +43,7 @@ spec:
               "gpt-4o-2024-08-06": ["https://llm-cluster.konsti.org/"]
             }
           CORS_ALLOWED_ORIGINS: '["https://app.konsti.org"]' # TODO: Remove this once we have proper CORS management in place
-          S3_BUCKET_ENDPOINT: 'http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc:80'
+          S3_BUCKET_ENDPOINT: 'http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc'
           S3_BUCKET_REGION: 'us-east-1'
           S3_BUCKET_NAME: 'chat-storage-bucket'
         replicaCount: 1
