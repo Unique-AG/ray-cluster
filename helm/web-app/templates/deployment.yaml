@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "web-app.labels" . | nindent 4 }}
   annotations:
-    configmap.reloader.stakater.com/reload: {{ include "web-app.fullname" . }}
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:

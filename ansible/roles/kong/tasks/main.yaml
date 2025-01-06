@@ -68,6 +68,21 @@
         name: "{{ kong_vars.kubernetes.helm.repository.org }}"
         repo_url: "{{ kong_vars.kubernetes.helm.repository.url }}"
 
+    - name: Install Gateway API CRDs
+      kubernetes.core.k8s:
+        src: https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/experimental-install.yaml
+        kubeconfig: '{{ k3s_vars.directory.config }}/k3s.yaml'
+        state: present
+
+    - name: Create the kong namespace
+      kubernetes.core.k8s:
+        name: "{{ kong_vars.kubernetes.namespace }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+        kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
+        wait: true
+
     - name: Add custom plugins via helm
       run_once: true
       block:

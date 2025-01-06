@@ -23,7 +23,7 @@ cephClusterSpec:
 ingress:
   dashboard:
     annotations:
-      kubernetes.io/ingress.class: kong
+      kubernetes.io/ingress.class: "{{ cluster.ingress_class }}"
       cert-manager.io/cluster-issuer: letsencrypt-production
     host:
       name: {{ rook_ceph_vars.kubernetes.ingress.subdomain }}.{{ domain }}
@@ -95,7 +95,7 @@ cephObjectStores:
     ingress:
       enabled: {{ rook_ceph_vars.kubernetes.object_storage.ingress.enabled }}
       annotations:
-        kubernetes.io/ingress.class: kong
+        kubernetes.io/ingress.class: "{{ cluster.ingress_class }}"
         cert-manager.io/cluster-issuer: letsencrypt-production
       host:
         name: {{ rook_ceph_vars.kubernetes.object_storage.ingress.subdomain }}.{{ domain }}
@@ -103,4 +103,4 @@ cephObjectStores:
         - hosts:
             - {{ rook_ceph_vars.kubernetes.object_storage.ingress.subdomain }}.{{ domain }}
           secretName: rook-ceph-object-storage-tls
-      ingressClassName: kong
+      ingressClassName: "{{ cluster.ingress_class }}"

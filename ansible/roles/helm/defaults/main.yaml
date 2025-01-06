@@ -11,7 +11,7 @@ helm_vars:
         - python3-jsonpatch
       repository:
         url: https://github.com/databus23/helm-diff
-      version: v3.9.9
+      version: "{{ versions.helm_diff }}"
   release:
     distro: debian
     key: helm-archive-keyring.gpg

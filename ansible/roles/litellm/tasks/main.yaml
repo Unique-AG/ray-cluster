@@ -154,6 +154,7 @@
                 DATABASE_URL: "{{ ('postgresql://' + litellm_db_user_username + ':' + litellm_db_user_password + '@' + litellm_vars.postgres_cluster.name + '.' + litellm_vars.kubernetes.namespace + '.svc:5432/' + litellm_vars.postgres_cluster.database) | b64encode }}"
                 AWS_ACCESS_KEY_ID: "{{ document_chat.llm_proxy.bedrock.aws_access_key_id | b64encode }}"
                 AWS_SECRET_ACCESS_KEY: "{{ document_chat.llm_proxy.bedrock.aws_secret_access_key | b64encode }}"
+                AWS_REGION_NAME: "{{ document_chat.llm_proxy.bedrock.claude_sonnet.aws_region_name | b64encode }}"
 
         - name: Wait for litellm-db-cluster StatefulSet to have correct number of replicas
           kubernetes.core.k8s_info:

@@ -24,3 +24,8 @@ configPatches:
       secretKeyRef:
         name: aws-bedrock-user
         key: aws_secret_access_key
+  - path: /model/options/bedrock/aws_region
+    valueFrom:
+      secretKeyRef:
+        name: aws-bedrock-user
+        key: aws_claude_sonnet_region_name
