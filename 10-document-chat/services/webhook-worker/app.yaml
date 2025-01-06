@@ -1,0 +1,55 @@
+spec:
+  name: document-chat-service-webhook-worker
+  autoSync: false
+  source:
+    chart: backend-service
+    repoURL: harbor.konsti.org/library
+    targetRevision: 0.12.1
+    helm:
+      releaseName: service-webhook-worker
+      valuesObject:
+        nameOverride: service-webhook-worker
+        image:
+          repository: harbor.konsti.org/library/backend-service-webhook-worker
+          tag: "2024.50"
+        env:
+          LOG_LEVEL: info
+          MAX_HEAP_MB: 200
+          APP_REPOSITORY_URL: 'http://service-app-repository.document-chat.svc'
+        replicaCount: 1
+        service:
+          enabled: false
+        resources:
+          requests:
+            cpu: 100m
+            memory: 300Mi
+          limits:
+            cpu: 200m
+            memory: 350Mi
+        externalSecret:
+          enabled: true
+          refreshInterval: 5m
+          secretStoreRef:
+            kind: ClusterSecretStore
+            name: document-chat-secret-store
+          target:
+            template:
+              data:
+                AMQP_URL: "amqp://{{ .rabbitmqUsername }}:{{ .rabbitmqPassword }}@{{ .rabbitmqHost }}:{{ .rabbitmqPort }}"                
+          data:
+            - secretKey: rabbitmqPassword
+              remoteRef:
+                key: rabbitmq-default-user
+                property: password
+            - secretKey: rabbitmqUsername
+              remoteRef:
+                key: rabbitmq-default-user
+                property: username
+            - secretKey: rabbitmqHost
+              remoteRef:
+                key: rabbitmq-default-user
+                property: host
+            - secretKey: rabbitmqPort
+              remoteRef:
+                key: rabbitmq-default-user
+                property: port

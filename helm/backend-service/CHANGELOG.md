@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.1] - 2025-01-06
+
+- Add terminationGracePeriodSeconds
+
+## [0.12.0] - 2025-01-06
+
+- Make service optional
+
 ## [0.10.0] - 2024-10-18
 
 - Add cronJob

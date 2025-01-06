@@ -1,0 +1,69 @@
+spec:
+  name: document-chat-service-ingestion-worker
+  autoSync: false
+  source:
+    chart: backend-service
+    repoURL: harbor.konsti.org/library
+    targetRevision: 0.12.1
+    helm:
+      releaseName: service-ingestion-worker
+      valuesObject:
+        nameOverride: service-ingestion-worker
+        image:
+          repository: harbor.konsti.org/library/backend-service-ingestion-worker
+          tag: "2024.50"
+        env:
+          LOG_LEVEL: info
+          INGESTION_API_URL: 'http://service-ingestion.document-chat.svc'
+          MAX_HEAP_MB: 850
+          CONVERT_OFFICE_FILES_TO_PDF: 'true'
+          INGESTION_QUEUE: 'queue'
+          MAX_RETRIES: 1
+          NUMBER_OF_PDF_PAGES_IN_PARALLEL: 3
+          CUSTOM_API_DEFINITIONS: >-
+            []
+        replicaCount: 1
+        service:
+          enabled: false
+        resources:
+          requests:
+            cpu: 1
+            memory: 1Gi
+          limits:
+            cpu: 1
+            memory: 2Gi
+        terminationGracePeriodSeconds: 900 # 15 minutes
+        volumes:
+          - name: tmp-volume
+            emptyDir:
+              sizeLimit: 20Gi
+        volumeMounts:
+          - mountPath: /tmp
+            name: tmp-volume
+        externalSecret:
+          enabled: true
+          refreshInterval: 5m
+          secretStoreRef:
+            kind: ClusterSecretStore
+            name: document-chat-secret-store
+          target:
+            template:
+              data:
+                AMQP_URL: "amqp://{{ .rabbitmqUsername }}:{{ .rabbitmqPassword }}@{{ .rabbitmqHost }}:{{ .rabbitmqPort }}"                
+          data:
+            - secretKey: rabbitmqPassword
+              remoteRef:
+                key: rabbitmq-default-user
+                property: password
+            - secretKey: rabbitmqUsername
+              remoteRef:
+                key: rabbitmq-default-user
+                property: username
+            - secretKey: rabbitmqHost
+              remoteRef:
+                key: rabbitmq-default-user
+                property: host
+            - secretKey: rabbitmqPort
+              remoteRef:
+                key: rabbitmq-default-user
+                property: port
