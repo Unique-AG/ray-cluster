@@ -78,6 +78,26 @@ spec:
                 - path:
                     type: PathPrefix
                     value: /ingestion
+          additionalRoutes:
+            - name: service-ingestion-upload
+              hostnames:
+                - api.konsti.org
+              annotations: {}
+              rules:
+                - matches:
+                    - path:
+                        type: Exact
+                        value: /ingestion/upload
+                  filters:
+                    - type: URLRewrite
+                      urlRewrite:
+                        path:
+                          type: ReplaceFullPath
+                          replaceFullPath: /scoped/upload
+                  backendRefs:
+                    - name: service-ingestion
+                      port: 80
+                      kind: Service
         objectBucketClaims:
           enabled: true
           buckets:
