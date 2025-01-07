@@ -39,6 +39,8 @@ spec:
           AZURE_OPENAI_API_ENDPOINT: "https://llm-cluster.konsti.org/"
           TRUSTED_DOMAINS: '["*.konsti.org"]'
           ADDITIONAL_EMBEDDING_MODELS_JSON: '[{"endpoint": "http://litellm.litellm.svc:4000", "apiKey": "sk-HZ0bbg1WbumCUuAJfiFJLID9dEgTNFMu", "apiVersion": "v1", "deploymentName": "bedrock-cohere-embed-multilingual"}]'
+          CHUNK_MAX_TOKENS: 400
+          CHUNK_MAX_TOKENS_ONE_PAGER: 400
         replicaCount: 1
         resources:
           requests:

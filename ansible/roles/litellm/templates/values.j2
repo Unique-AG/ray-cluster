@@ -1,5 +1,6 @@
 env:
   AWS_REGION_NAME: "eu-central-1"
+  LITELLM_LOG: "DEBUG"
 
 secretFrom:
   name: litellm
@@ -28,6 +29,10 @@ proxy_config:
         aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
         aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
         aws_region_name: os.environ/AWS_BEDROCK_COHERE_EMBED_MULTILINGUAL_REGION_NAME
+        additional_drop_params: ["api_version", "encoding_format"]
+  litellm_settings:
+    turn_off_message_logging: false
+    json_logs: true
 
 ingress:
   enabled: true

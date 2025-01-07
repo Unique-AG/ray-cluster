@@ -20,6 +20,7 @@ spec:
           INGESTION_QUEUE: 'queue'
           MAX_RETRIES: 1
           NUMBER_OF_PDF_PAGES_IN_PARALLEL: 3
+          EMBEDDING_BATCH_SIZE: 1
           CUSTOM_API_DEFINITIONS: >-
             []
         replicaCount: 1
