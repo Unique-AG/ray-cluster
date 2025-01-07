@@ -25,6 +25,8 @@ kong_vars:
           url: https://unique-ag.github.io/helm-charts/
     gateway:
       name: kong
+      image:
+        repository: kong # or use kong/kong-gateway for the enterprise version
   zitadel:
     domain: id.{{ domain }}
     project_id: "{{ zitadel.project_id }}"
