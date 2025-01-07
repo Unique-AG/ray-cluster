@@ -1,0 +1,38 @@
+spec:
+  name: document-chat-qdrant
+  autoSync: true
+  source:
+    chart: qdrant
+    repoURL: https://qdrant.github.io/qdrant-helm
+    targetRevision: 1.12.5
+    helm:
+      releaseName: document-chat-qdrant
+      valuesObject:
+        resources:
+          requests:
+            cpu: 500m
+            memory: 2Gi
+          limits:
+            memory: 2Gi
+        persistence:
+          storageClassName: ceph-block
+        ingress:
+          enabled: true
+          ingressClassName: kong
+          annotations:
+            cert-manager.io/cluster-issuer: letsencrypt-production
+          hosts:
+            - host: qdrant.konsti.org
+              paths:
+                - path: /
+                  pathType: Prefix
+                  servicePort: 6333
+          tls:
+            - hosts:
+                - qdrant.konsti.org
+              secretName: qdrant-tls
+        metrics:
+          serviceMonitor:
+            enabled: true
+            additionalLabels:
+              release: prometheus
