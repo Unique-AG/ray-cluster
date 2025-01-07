@@ -52,10 +52,12 @@ spec:
             - secretRef:
                 name: {{ .Values.secretFrom.name }}
             {{- end }}
+          {{- if .Values.probes.enabled }}
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            {{- toYaml .Values.probes.livenessProbe | nindent 12 }}
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+              {{- toYaml .Values.probes.readinessProbe | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.13.0] - 2025-01-07
+
+- Add option to disable probes
+
 ## [0.12.1] - 2025-01-06
 
 - Add terminationGracePeriodSeconds

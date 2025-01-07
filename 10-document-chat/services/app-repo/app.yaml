@@ -4,7 +4,7 @@ spec:
   source:
     chart: backend-service
     repoURL: harbor.konsti.org/library
-    targetRevision: 0.12.1
+    targetRevision: 0.13.0
     helm:
       releaseName: service-app-repository
       valuesObject:
@@ -30,14 +30,15 @@ spec:
             enabled: true
             command: |
               cd /node/dist/apps/node-app-repository; npx prisma migrate deploy
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: http
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: http
+        probes:
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
         httproute:
           enabled: true
           hostnames:

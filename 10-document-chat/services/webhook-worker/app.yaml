@@ -4,7 +4,7 @@ spec:
   source:
     chart: backend-service
     repoURL: harbor.konsti.org/library
-    targetRevision: 0.12.1
+    targetRevision: 0.13.0
     helm:
       releaseName: service-webhook-worker
       valuesObject:
@@ -18,6 +18,8 @@ spec:
           APP_REPOSITORY_URL: 'http://service-app-repository.document-chat.svc'
         replicaCount: 1
         service:
+          enabled: false
+        probes:
           enabled: false
         resources:
           requests:

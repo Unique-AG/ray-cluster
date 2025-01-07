@@ -78,14 +78,16 @@ httproute:
 
 resources: {}
 
-livenessProbe:
-  httpGet:
-    path: /probe
-    port: http
-readinessProbe:
-  httpGet:
-    path: /probe
-    port: http
+probes:
+  enabled: true
+  livenessProbe:
+    httpGet:
+      path: /probe
+      port: http
+  readinessProbe:
+    httpGet:
+      path: /probe
+      port: http
 
 volumes: []
 
