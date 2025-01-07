@@ -4,6 +4,9 @@ env:
 secretFrom:
   name: litellm
 
+podAnnotations:
+  reloader.stakater.com/auto: "true"
+
 resources:
   requests:
     memory: 1Gi
@@ -18,7 +21,13 @@ proxy_config:
         model: anthropic.claude-3-5-sonnet-20240620-v1:0
         aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
         aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
-        aws_region_name: os.environ/AWS_REGION_NAME
+        aws_region_name: os.environ/AWS_BEDROCK_CLAUDE_SONNET_REGION_NAME
+    - model_name: bedrock-cohere-embed-multilingual
+      litellm_params:
+        model: "bedrock/cohere.embed-multilingual-v3"
+        aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+        aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+        aws_region_name: os.environ/AWS_BEDROCK_COHERE_EMBED_MULTILINGUAL_REGION_NAME
 
 ingress:
   enabled: true
