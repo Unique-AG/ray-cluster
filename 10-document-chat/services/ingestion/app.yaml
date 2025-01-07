@@ -33,7 +33,7 @@ spec:
           RERANKER_CONFIGURATION: '[{"deploymentName": "crossencoder_reranker", "apiUrl": "http://assistants-reranker.python.svc:8081/reranker/rerank"}]'
           S3_BUCKET_ENDPOINT: "http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc"
           S3_BUCKET_REGION: "us-east-1"
-          S3_BUCKET_NAME: "ingestion-storage-bucket"
+          S3_BUCKET_BUCKET_NAME: "ingestion-storage-bucket"
           AZURE_OPENAI_API_KEY: "key" # TODO: Replace with our custom LLM creds
           AZURE_OPENAI_API_ENDPOINT: "https://llm-cluster.konsti.org/"
           TRUSTED_DOMAINS: '["*.konsti.org"]'
