@@ -24,6 +24,7 @@ spec:
           ENABLE_MALWARE_SCAN: "false"
           REPLICATION_FACTOR: 1
           FILE_RETENTION_IN_DAYS: 0
+          QDRANT_URL: "http://document-chat-qdrant.document-chat.svc:6333"
           ADDITIONAL_INGESTION_QUEUES: '["chat_queue"]'
           ZITADEL_PROJECT_ID: "null" # Not required any more, as Kong extracts roles from JWT
           ZITADEL_ROOT_ORG_ID: "null" # Required for maintenance tasks. Needs to be set to the CLUSTER_IAM org_id to allow maintenance tasks.
@@ -113,7 +114,6 @@ spec:
               data:
                 AMQP_URL: "amqp://{{ .rabbitmqUsername }}:{{ .rabbitmqPassword }}@{{ .rabbitmqHost }}:{{ .rabbitmqPort }}"
                 DATABASE_URL: "postgresql://{{ .postgresUsername }}:{{ .postgresPassword }}@{{ .postgresHost }}:{{ .postgresPort }}/ingestion"
-                QDRANT_URL: "http://qdrant.qdrant.svc:6333"
                 S3_BUCKET_ACCESS_KEY: "{{ .chatStorageBucketAccessKey }}"
                 S3_BUCKET_SECRET_ACCESS_KEY: "{{ .chatStorageBucketSecretKey }}"
                 INGESTION_ENCRYPTION_KEY: "{{ .ingestionEncryptionKey }}"
