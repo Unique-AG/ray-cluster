@@ -11,48 +11,6 @@
   ansible.builtin.import_tasks:
     file: validation.yaml
 
-- name: Remove Traefik and restart K3s
-  run_once: true
-  block:
-    - name: Create skip file for Traefik
-      ansible.builtin.file:
-        path: /var/lib/rancher/k3s/server/manifests/traefik.yaml.skip
-        state: touch
-      become: true
-
-    - name: Remove Traefik manifest
-      ansible.builtin.file:
-        path: /var/lib/rancher/k3s/server/manifests/traefik.yaml
-        state: absent
-      become: true
-
-    - name: Uninstall Traefik
-      kubernetes.core.helm:
-        name: traefik
-        release_namespace: kube-system
-        state: absent
-        kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
-        wait: true
-      ignore_errors: true
-      register: traefik_uninstalled
-
-    - name: Uninstall Traefik CRD
-      kubernetes.core.helm:
-        name: traefik-crd
-        release_namespace: kube-system
-        state: absent
-        kubeconfig: "{{ k3s_vars.directory.config }}/k3s.yaml"
-        wait: true
-      ignore_errors: true
-      register: traefik_crd_uninstalled
-
-    - name: Restart K3s service
-      ansible.builtin.systemd:
-        name: k3s
-        state: restarted
-      become: true
-      when: traefik_uninstalled is changed or traefik_crd_uninstalled is changed
-
 - name: Role Provisioning
   when: ansible_host in k3s_server_hosts
   block:

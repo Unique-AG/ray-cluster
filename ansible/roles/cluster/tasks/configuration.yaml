@@ -2,16 +2,18 @@
 - name: Install basic packages
   apt:
     name:
-      - unattended-upgrades
-      - vim
-      - gnupg
-      - dnsutils
-      - unzip
-      - software-properties-common
       - apt-transport-https
       - ca-certificates
       - curl
+      - dnsutils
+      - git
+      - gnupg
       - gnupg-agent
+      - rsyslog
+      - software-properties-common
+      - unattended-upgrades
+      - unzip
+      - vim
     state: present
 
 - name: Configure unattended upgrades
@@ -60,3 +62,23 @@
     value: 1024
     state: present
     reload: yes
+
+- name: Disable swap in /etc/fstab and turn it off
+  block:
+    - name: Comment out swap entries in /etc/fstab
+      lineinfile:
+        path: /etc/fstab
+        regexp: '^([^#].*\s+swap\s+)'
+        line: '#\1'
+        backrefs: yes
+      register: fstab_swap
+
+    - name: Turn swap off
+      command: swapoff -a
+      when: fstab_swap.changed
+
+    - name: Remove swap file (optional)
+      file:
+        path: /swap.img
+        state: absent
+      when: fstab_swap.changed
