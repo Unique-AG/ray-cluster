@@ -11,7 +11,7 @@ spec:
         nameOverride: service-ingestion
         image:
           repository: harbor.konsti.org/library/backend-service-ingestion
-          tag: "2024.50"
+          tag: "2025.02-d92c0"
         env:
           LOG_LEVEL: info
           AZURE_OPENAI_API_DEPLOYMENT_NAME: foobar
