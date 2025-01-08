@@ -31,7 +31,7 @@
       block:
         - name: Set hostname fact
           ansible.builtin.set_fact:
-            hostname: '{{ argocd_vars.kubernetes.server.ingress.subdomain }}.{{ domain }}'
+            hostname: '{{ argocd_vars.kubernetes.server.ingress.subdomain }}.{{ cluster.domain }}'
 
         - name: Set server user settings fact
           ansible.builtin.set_fact:

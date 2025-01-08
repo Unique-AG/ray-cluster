@@ -26,10 +26,10 @@ ingress:
       kubernetes.io/ingress.class: "{{ cluster.ingress_class }}"
       cert-manager.io/cluster-issuer: letsencrypt-production
     host:
-      name: {{ rook_ceph_vars.kubernetes.ingress.subdomain }}.{{ domain }}
+      name: {{ rook_ceph_vars.kubernetes.ingress.subdomain }}.{{ cluster.domain }}
     tls:
       - hosts:
-          - {{ rook_ceph_vars.kubernetes.ingress.subdomain }}.{{ domain }}
+          - {{ rook_ceph_vars.kubernetes.ingress.subdomain }}.{{ cluster.domain }}
         secretName: rook-ceph-tls
     ingressClassName: "{{ cluster.ingress_class }}"
 cephBlockPools:
@@ -98,9 +98,9 @@ cephObjectStores:
         kubernetes.io/ingress.class: "{{ cluster.ingress_class }}"
         cert-manager.io/cluster-issuer: letsencrypt-production
       host:
-        name: {{ rook_ceph_vars.kubernetes.object_storage.ingress.subdomain }}.{{ domain }}
+        name: {{ rook_ceph_vars.kubernetes.object_storage.ingress.subdomain }}.{{ cluster.domain }}
       tls:
         - hosts:
-            - {{ rook_ceph_vars.kubernetes.object_storage.ingress.subdomain }}.{{ domain }}
+            - {{ rook_ceph_vars.kubernetes.object_storage.ingress.subdomain }}.{{ cluster.domain }}
           secretName: rook-ceph-object-storage-tls
       ingressClassName: "{{ cluster.ingress_class }}"

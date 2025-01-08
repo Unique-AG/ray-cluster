@@ -14,7 +14,7 @@ harbor_vars:
   admin:
     password: "{{ harbor.admin.password }}"
   ingress:
-    hostname: harbor.{{ domain }}
+    hostname: harbor.{{ cluster.domain }}
   persistence:
     storage_class: ceph-block
   resources:

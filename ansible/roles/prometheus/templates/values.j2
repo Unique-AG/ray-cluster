@@ -24,10 +24,10 @@ alertmanager:
       cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
       # konghq.com/plugins: "{{ basic_auth_vars.plugin.name }}"
     hosts:
-      - {{ prometheus_vars.kubernetes.alertmanager.ingress.subdomain }}.{{ domain }}
+      - {{ prometheus_vars.kubernetes.alertmanager.ingress.subdomain }}.{{ cluster.domain }}
     tls:
       - hosts:
-          - {{ prometheus_vars.kubernetes.alertmanager.ingress.subdomain }}.{{ domain }}
+          - {{ prometheus_vars.kubernetes.alertmanager.ingress.subdomain }}.{{ cluster.domain }}
         secretName: {{ prometheus_vars.kubernetes.alertmanager.ingress.tls.secret_name }}
 grafana:
   grafana.ini:
@@ -44,10 +44,10 @@ grafana:
     annotations:
       cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
     hosts:
-      - {{ prometheus_vars.kubernetes.grafana.ingress.subdomain }}.{{ domain }}
+      - {{ prometheus_vars.kubernetes.grafana.ingress.subdomain }}.{{ cluster.domain }}
     tls:
       - hosts:
-          - {{ prometheus_vars.kubernetes.grafana.ingress.subdomain }}.{{ domain }}
+          - {{ prometheus_vars.kubernetes.grafana.ingress.subdomain }}.{{ cluster.domain }}
         secretName: {{ prometheus_vars.kubernetes.grafana.ingress.tls.secret_name }}
 kubeControllerManager:
   endpoints:
@@ -69,10 +69,10 @@ prometheus:
       cert-manager.io/cluster-issuer: {{ certmanager_vars.kubernetes.tls.cluster_issuer.production.name }}
       # konghq.com/plugins: "{{ basic_auth_vars.plugin.name }}"
     hosts:
-      - {{ prometheus_vars.kubernetes.prometheus.ingress.subdomain }}.{{ domain }}
+      - {{ prometheus_vars.kubernetes.prometheus.ingress.subdomain }}.{{ cluster.domain }}
     tls:
       - hosts:
-          - {{ prometheus_vars.kubernetes.prometheus.ingress.subdomain }}.{{ domain }}
+          - {{ prometheus_vars.kubernetes.prometheus.ingress.subdomain }}.{{ cluster.domain }}
         secretName: {{ prometheus_vars.kubernetes.prometheus.ingress.tls.secret_name }}
   prometheusSpec:
     enableAdminAPI: true

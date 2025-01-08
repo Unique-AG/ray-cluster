@@ -28,7 +28,7 @@ kong_vars:
       image:
         repository: kong # or use kong/kong-gateway for the enterprise version
   zitadel:
-    domain: id.{{ domain }}
+    domain: id.{{ cluster.domain }}
     project_id: "{{ zitadel.project_id }}"
   app:
-    domain: app.{{ domain }}
+    domain: app.{{ cluster.domain }}

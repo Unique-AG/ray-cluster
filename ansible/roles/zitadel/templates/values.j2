@@ -6,13 +6,13 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
   hosts:
-    - host: {{ zitadel_vars.kubernetes.ingress.subdomain }}.{{ domain }}
+    - host: {{ zitadel_vars.kubernetes.ingress.subdomain }}.{{ cluster.domain }}
       paths:
         - path: /
           pathType: Prefix
   tls:
     - hosts:
-        - {{ zitadel_vars.kubernetes.ingress.subdomain }}.{{ domain }}
+        - {{ zitadel_vars.kubernetes.ingress.subdomain }}.{{ cluster.domain }}
       secretName: zitadel-tls
 resources:
   requests:
@@ -27,7 +27,7 @@ zitadel:
     enabled: true
   configmapConfig:
     ExternalSecure: true
-    ExternalDomain: {{ zitadel_vars.kubernetes.ingress.subdomain }}.{{ domain }}
+    ExternalDomain: {{ zitadel_vars.kubernetes.ingress.subdomain }}.{{ cluster.domain }}
     TLS:
       Enabled: false
     Log:
